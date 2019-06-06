@@ -1,0 +1,30 @@
+{
+  "name": "OCA: Attendance Assistant",
+  "description": "Overhaul of the default Activities Log page within Connexus.",
+  "version": "6.4.2",
+  "manifest_version": 2,
+  "background": {
+    "persistent": false,
+	"scripts": ["CryptoJS/aes.js","background.js"]
+  },
+  "browser_action": {
+    "default_title": "OCA Attendance Assistant",
+	"default_popup": "popup.html",
+	"default_icon": "/images/icon.png"
+  },
+	"content_scripts": [
+	  {
+		"matches": ["https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=*"],
+		"js": ["CryptoJS/aes.js","activitiesLog.js"],
+		"all_frames": true,
+		"run_at": "document_end"
+	  }
+  ],
+  "permissions": [
+    "webNavigation",
+	"storage",
+	"tabs",
+	"windows",
+	"<all_urls>"
+  ]
+}

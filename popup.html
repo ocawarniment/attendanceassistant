@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Title of the document</title>
+<link rel="stylesheet" href="/stylesheets/popup.css">
+<script src="CryptoJS/aes.js"></script>
+
+<style> 
+	@font-face {
+			font-family: opensans;
+			src: url(/fonts/opensans.ttf);
+	}
+	
+	body { font-family: opensans; }
+	button { font-family: opensans; }
+	a { font-family: opensans; }
+	input {	font-family: opensans; }
+	td { font-family: opensans; }
+</style>
+
+</head>
+
+<body>
+	<div style="float:left; padding-left:10px">
+		<img src="/images/ocalogo.png"></img>
+	</div>
+	<div style="float:right; padding-right:10px">
+		<br><input id="homeroomID" size="10" style="text-align:center">&nbsp;&nbsp;<button id="downloadHomeroomButton" type="button">Download Homeroom</button><div align="center" id="homeroomTimestamp"></div>
+	</div>
+	<br><br><br>
+	<div id="note" style="margin-bottom:-10px">
+		<center>
+		<br>
+		<div id="datesBanner" style="padding-top: 5px; padding-bottom: 5px; border-top: 1px solid #f7e8c5;	padding-left: 10px;	border-bottom: 1px solid #f7e8c5;	background: #FFFFE0;"><b>Current Approval Window: </b><div id="dateMode" style="display: inline">(Automatic - Dates are based on prior school week)</div><br>Start Date: <input type="date" id="startDate">  End Date: <input type="date" id="endDate"></div>
+		<br>
+		</center>
+	</div>
+
+	<div id="homeroomTab" class="tabcontent">
+		<table id="homeroomTable" style="width:100%" cellspacing="0" cellpadding="3px">
+			<tr>
+			<th></th>
+			<th></th> 
+			<th></th>
+			</tr>
+		</table>
+	</div>
+
+	<div id="autoDatesTab" class="tabcontent">
+		<div class="dateHeader" align="center">
+			<b>Connexus Activities Log Auto-Populate Dates</b><br>
+			<br>
+			Start Date:&nbsp;<input type="date" id="startDate">&nbsp;End Date:&nbsp;<input type="date" id="endDate">&nbsp;<button id="storeDatesButton" type="button">Save Dates</button>
+			<br>
+			<i>These dates have no impact on the data on the Homeroom tab.</i>
+			<div id="errorBanner" style="display: none;"><br>Please enter both dates!</div>
+			<div id="confirmBanner" style="display: none;"><br>Dates saved!</div>
+			<div id="dateBanner" style="display: none;"><br>Do not select more than 30 days! Also, make sure your end date is after your start date.</div>
+		</div>
+	</div>
+
+	<div id="settingsTab" class="tabcontent">
+		<h3>Settings</h3>
+		<input type="checkbox" id="autoCloseSetting">Close previous Activity Log tabs when clicking "Activity Log" buttons.
+		<br><br>
+		<input type="checkbox" id="autoWorkSetting">Automatically download lesson and assessment counts.
+		<br><br>
+		<input type="checkbox" id="calendarSetting">Show "--" as the Time Gap on non-school days.
+		<!-- <br><br>
+		Expected time per lesson:
+		<select id="hoursPerLesson">
+			<option value="0">0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+		</select><b>hr&nbsp;&nbsp;</b>
+		<select id="minutesPerLesson">
+			<option value="0">0</option>
+			<option value="15">15</option>
+			<option value="30">30</option>
+			<option value="40">45</option>
+		</select><b>min&nbsp;&nbsp;</b><br>
+	<i> Leave blank to not calculate expected work time. </i> -->
+	</div>
+	
+	<script src="/scripts/popup.js"></script>
+</body>
+
+</html>
