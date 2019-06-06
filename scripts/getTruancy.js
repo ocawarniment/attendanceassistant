@@ -1,5 +1,9 @@
 /////////////
 var storage = chrome.storage.local;
+// message to background console
+function bgConsole(sendCommand) {
+	chrome.runtime.sendMessage({type: 'console', command: sendCommand});
+}
 
 // download truancy
 storage.get(null, function(result) {
@@ -47,6 +51,18 @@ storage.get(null, function(result) {
 			lessonsBehind = document.getElementById('EF_NumberLessonsBehind').innerText.trim();
 			if (lessonsBehind == "#VALUE!" || lessonsBehind == "" || lessonsBehind == null) {lessonsBehind = "-"}
 			homeroomArray['ST' + studentID]['lessonsBehind'] = lessonsBehind;
+
+			// get last contact
+			var lastSyncContact;
+			lastSyncContact = getExtendedField("EF_StudentLastSynchronousContact");
+			// calc days since contact
+			var today = new Date();
+			var diff =  -1*(Math.floor(( Date.parse(lastSyncContact) - today) / 86400000) + 1); 
+			// flow chart days since contact
+			if (diff >= 14) { homeroomArray['ST' + studentID]['escalation'] = "Approaching Alarm" }
+			if (diff >= 21) { homeroomArray['ST' + studentID]['escalation'] = "Alarm" };
+			// set hover text
+			homeroomArray['ST' + studentID]['escReason'] = "Last Contact: " + lastSyncContact;
 			
 			// debug and testing color coding
 			//overdue = "26";
@@ -63,3 +79,9 @@ storage.get(null, function(result) {
 		chrome.runtime.sendMessage({type: 'getTruancy', first: false, completedID: studentID});
 		window.close();
 });
+
+function getExtendedField(name) {
+	var value;
+	value = document.getElementById(name).innerText;
+	return value;
+}
