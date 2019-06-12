@@ -24,8 +24,6 @@ storage.remove('assessmentsArray');
 
 setDates();
 
-
-
 setTimeout(function() {chrome.runtime.sendMessage({type: "storeWork", closeSender: true});}, 200);
 
 function setDates() {
@@ -86,22 +84,6 @@ function setDates() {
 
 		chrome.runtime.sendMessage({type: "reloadWork"});
 
-		//for (i=0; i<1000; i++) {
-		//	testCount = document.getElementsByClassName("cxaMessage saved").length;
-		//	bgConsole(testCount);
-		//}
 	});
 }
-
-
-// wait a fraction of a second after the save button was clicked to reload the page
-//setTimeout(function(){
-//	storage.get(null, function(result) {
-//		chrome.runtime.sendMessage({type: "loadWork"});
-//	});
-//}, 1000);
-
-// click the save button to reload
-//setTimeout(function(){window.close();}, 1100);
-
 

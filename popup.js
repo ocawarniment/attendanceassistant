@@ -42,8 +42,7 @@ function formatDate(date) {
 // load current saved dates and settings
 function loadSettings() {
 	chrome.storage.local.get(null, function (result) { 
-		document.getElementById("startDate").value = result.approveStartDate;
-		document.getElementById("endDate").value = result.approveEndDate;
+
 		document.getElementById("calendarSetting").checked = result.calendarSetting;
 		document.getElementById('autoWorkSetting').checked = result.autoWorkSetting;
 		document.getElementById('calendarSetting').checked = result.calendarSetting;
@@ -77,15 +76,6 @@ function loadHomeroomID() {
 
 function downloadHomeroom(homeroomID) {
 	// start the homeroom download
-	storage.get(null, function(result) {
-				
-		// backup current HR list
-		storage.set({ 'oldHomeroomArray': result.homeroomArray });
-		
-		var allChanges = result.allChanges;
-		allChanges[studentID] = [];
-		storage.set({'allChanges': allChanges});
-	});
 	chrome.runtime.sendMessage({type: 'downloadHomeroom', homeroomID: homeroomID});
 }
 
@@ -131,8 +121,8 @@ function loadHomeroom() {
 		var totalHoursHeader = document.createElement("th");
 		var lastContactHeader = document.createElement("th");
 		var escHeader = document.createElement("th");
-
 		var workMetricHeader = document.createElement("th");
+		
 		// DISPLAY LAST SHOWN METRIC
 		console.log(result);
 		var workMetricClass = result.workMetric;
@@ -141,14 +131,14 @@ function loadHomeroom() {
 
 		idHeader.innerText = "ID";
 		nameHeader.innerText = "Name";
-		totalHoursHeader.innerHTML = "Hours<br>Over/Under";
+		totalHoursHeader.innerHTML = "Over/Under";
 		missingHoursHeader.innerHTML = "Last Login";
 		missingHoursHeader.align = "center";
-		gapDateHeader.innerHTML = "Approval<br>Gap Date";
+		gapDateHeader.innerHTML = "Gap Date";
 		gapDateHeader.align = "center";
 		overdueHeader.innerHTML = "Overdue<br>Lessons";
 		overdueHeader.align = "center"; 
-		approveHeader.innerHTML = "Connexus Activity<br>Tracker";
+		approveHeader.innerHTML = "Activity Tracker";
 		// add the header cells to the header row
 		headerRow.appendChild(idHeader);
 		headerRow.appendChild(escHeader);

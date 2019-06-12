@@ -30,7 +30,7 @@ chrome.runtime.onMessage.addListener(
 			chrome.tabs.create({ url: 'https://www.connexus.com/webuser/dataview.aspx?idWebuser=' + result.studentID + '&idDataview=410', selected: false }, function(tab) {
 				// execute the get work script on the opened tab
 				chrome.tabs.executeScript(tab.id, {
-					file: '/scripts/getWork.js',
+					file: '/js/work/getWork.js',
 					runAt: 'document_end'
 				});
 			});
@@ -61,7 +61,7 @@ chrome.runtime.onMessage.addListener(
 		if (request.closeSender == true) { chrome.tabs.remove(sender.tab.id); }
 		// load variables
 		chrome.tabs.executeScript(sender.tab.id, {
-			file: '/scripts/storeWork.js',
+			file: '/js/work/storeWork.js',
 			runAt: 'document_end'
 		});
 	}
@@ -78,21 +78,13 @@ chrome.runtime.onMessage.addListener(
 		closeWorkDVs();
 	};
 
-	if (request.type == "checkAssessments") {
-		chrome.tabs.create({ url: 'https://www.connexus.com/assessments/results/listTaken.aspx?idWebuser=' + request.studentID, selected: true}, function(tab) {
-			// execute the download homeroom external script on the new tab
-			//chrome.tabs.executeScript(tab.id, {
-			//	file: '/scripts/checkAssessments.js',
-			//	runAt: 'document_end'
-			//});
-		});
-	};
+
 	if (request.type == "searchIA") {
 		chrome.tabs.create({ url: 'https://www.connexus.com/issueaware/search.aspx?autoSearch=true&idWebuserSubject=' + request.studentID + '&searchText=Truancy', selected: true}, function(tab) {
 			// execute the download homeroom external script on the new tab
 			// var changesText = result.allChanges[result.studentID].toString();
 			chrome.tabs.executeScript(tab.id, {
-				file: '/scripts/truancyIA.js',
+				file: '/js/truancyIA.js',
 				runAt: 'document_end'
 			});
 		});
@@ -101,7 +93,7 @@ chrome.runtime.onMessage.addListener(
 		chrome.tabs.create({ url: 'https://www.connexus.com/log/logEntry.aspx?idWebuser=' + request.studentID + '&sendto=%2flog%2fdefault.aspx%3fidWebuser%3d' + request.studentID, selected: true}, function(tab) {
 			// execute the download homeroom external script on the new tab
 			chrome.tabs.executeScript(tab.id, {
-				file: '/scripts/createLog.js',
+				file: '/js/createLog.js',
 				runAt: 'document_end'
 			});
 		});
@@ -112,7 +104,7 @@ chrome.runtime.onMessage.addListener(
 			chrome.tabs.create({ url: 'https://www.connexus.com/webmail?hideHeader=true/#/composemessage?idWebuser=' + request.studentID + '&includeStudent=true&includeCaretakers=true&subject=Attendance Adjustments: ' + request.startDate + " - " + request.endDate, selected: true}, function(tab) {
 				// execute the download homeroom external script on the new tab
 				chrome.tabs.executeScript(tab.id, {
-					file: '/scripts/sendWebmail.js',
+					file: '/js/sendWebmail.js',
 					runAt: 'document_end'
 				});
 			});
@@ -122,7 +114,7 @@ chrome.runtime.onMessage.addListener(
 		chrome.tabs.create({ url: 'https://www.connexus.com/sectionsandstudents#/mystudents/' + request.homeroomID, selected: true}, function(tab) {
 			// execute the download homeroom external script on the new tab
 			chrome.tabs.executeScript(tab.id, {
-				file: '/scripts/downloadHomeroom.js',
+				file: '/js/downloadHomeroom.js',
 				runAt: 'document_end'
 			});
 		});
@@ -131,7 +123,7 @@ chrome.runtime.onMessage.addListener(
 		chrome.tabs.create({ url: 'https://www.connexus.com/sectionsandstudents#/mystudents/' + request.homeroomID, selected: true}, function(tab) {
 			// execute the download homeroom external script on the new tab
 			chrome.tabs.executeScript(tab.id, {
-				file: '/scripts/updateOverdue.js',
+				file: '/js/truancy/loadTruancy.js',
 				runAt: 'document_end'
 			});
 		});
@@ -190,7 +182,7 @@ chrome.runtime.onMessage.addListener(
 			chrome.tabs.create({ url: 'https://www.connexus.com/dataview/11961?idWebuser=' + studentID, selected: false}, function(tab) {
 				// execute the get truancy values script at the document end
 				chrome.tabs.executeScript(tab.id, {
-					file: '/scripts/getTruancy.js',
+					file: '/js/truancy/getTruancy.js',
 					runAt: 'document_end'
 				});
 			});
@@ -249,7 +241,7 @@ function focusOnAL() {
 function updateWorkCounts(activitiesLogID) {
 	chrome.tabs.update(activitiesLogID, {selected: true});
 	chrome.tabs.executeScript(activitiesLogID, {
-		file: '/scripts/updateWork.js',
+		file: '/js/work/loadWork.js',
 		runAt: 'document_idle'
 	});
 }

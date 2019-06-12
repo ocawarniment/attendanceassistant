@@ -14,17 +14,17 @@
   },
 	"content_scripts": [
 	  {
-		"matches": ["https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=*"],
-		"js": ["CryptoJS/aes.js","activitiesLog.js"],
-		"all_frames": true,
-		"run_at": "document_end"
+      "matches": ["https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=*"],
+      "js": ["CryptoJS/aes.js","activitiesLog.js"],
+      "all_frames": true,
+      "run_at": "document_end"
 	  }
   ],
   "permissions": [
     "webNavigation",
-	"storage",
-	"tabs",
-	"windows",
-	"<all_urls>"
+    "storage",
+    "tabs",
+    "windows",
+    "<all_urls>"
   ]
 }
