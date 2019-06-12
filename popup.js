@@ -42,7 +42,6 @@ function formatDate(date) {
 // load current saved dates and settings
 function loadSettings() {
 	chrome.storage.local.get(null, function (result) { 
-
 		document.getElementById("calendarSetting").checked = result.calendarSetting;
 		document.getElementById('autoWorkSetting').checked = result.autoWorkSetting;
 		document.getElementById('calendarSetting').checked = result.calendarSetting;
@@ -51,8 +50,7 @@ function loadSettings() {
 		if (result.autoWorkSetting == undefined) {document.getElementById('autoWorkSetting').checked = true; storage.set({'autoWorkSetting': true});}
 		if (result.calendarSetting == undefined) {document.getElementById('calendarSetting').checked = true; storage.set({'calendarSetting': true});}
 		if (result.homeroomTimestamp !== undefined) {document.getElementById('homeroomTimestamp').innerText = result.homeroomTimestamp;}
-		//document.getElementById('hoursPerLesson').selectedIndex = result.hoursPerLesson;
-		//document.getElementById('minutesPerLesson').selectedIndex = result.minutesPerLesson/15;
+
 	});
 }
 
@@ -614,3 +612,8 @@ function autoDates() {
 	document.getElementById("startDate").value =startYear+"-"+startMonth+"-"+startDay;
 	document.getElementById("endDate").value = endYear+"-"+endMonth+"-"+endDay;
 }
+
+// make the logo a toggle
+$('#schoolToggle').on('click', event => {
+	$(event.currentTarget).find('img').toggle();
+});

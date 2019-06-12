@@ -23,7 +23,11 @@
 
 <body>
 	<div style="float:left; padding-left:10px">
-		<img src="/images/ocalogo.png"></img>
+		<div id='schoolToggle'>
+			<img src='/images/ocalogo.png' style='cursor: pointer' />
+			<img src='/images/grcalogo.png' style='display:none; cursor: pointer;'/>
+		</div>
+		<!-- input id="schoolToggle" type="image" src="/images/ocalogo.png" /> -->
 	</div>
 	<div style="float:right; padding-right:10px">
 		<br><input id="homeroomID" size="10" style="text-align:center">&nbsp;&nbsp;<button id="downloadHomeroomButton" type="button">Download Homeroom</button><div align="center" id="homeroomTimestamp"></div>
@@ -67,29 +71,9 @@
 		<input type="checkbox" id="autoWorkSetting">Automatically download lesson and assessment counts.
 		<br><br>
 		<input type="checkbox" id="calendarSetting">Show "--" as the Time Gap on non-school days.
-		<!-- <br><br>
-		Expected time per lesson:
-		<select id="hoursPerLesson">
-			<option value="0">0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8</option>
-			<option value="9">9</option>
-			<option value="10">10</option>
-		</select><b>hr&nbsp;&nbsp;</b>
-		<select id="minutesPerLesson">
-			<option value="0">0</option>
-			<option value="15">15</option>
-			<option value="30">30</option>
-			<option value="40">45</option>
-		</select><b>min&nbsp;&nbsp;</b><br>
-	<i> Leave blank to not calculate expected work time. </i> -->
+
 	</div>
+	<script src="jquery/jquery.min.js"></script>
 	<script src="popup.js"></script>
 </body>
 
