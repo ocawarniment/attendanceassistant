@@ -654,7 +654,7 @@ function autoDates() {
 
 // store specific school vars in memory
 function storeSchoolVars(){
-	$.getJSON( "https://raw.githubusercontent.com/ocawarniment/attendanceassistant/master/school.json", function( data ) {
+	$.getJSON( "school.json", function( data ) {
 		chrome.storage.local.get(null,function(result){
 			if(result.school=='oca') {
 				// store in chrome storage
