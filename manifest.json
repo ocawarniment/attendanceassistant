@@ -22,9 +22,12 @@
   ],
   "permissions": [
     "webNavigation",
+    "downloads",
     "storage",
     "tabs",
     "windows",
-    "<all_urls>"
+    "<all_urls>",
+    "https://*.googleusercontent.com/",
+    "docs.google.com" 
   ]
 }

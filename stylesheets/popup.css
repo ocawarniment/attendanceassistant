@@ -3,6 +3,39 @@ body {
 	min-width:700px;
 }
 
+/* overlay for school select */
+#schoolSelectOverlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  }
+  /* school select buttons */
+  #selectBanner {
+    margin: 0;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+  }
+
+  /* school select buttons */
+  #schoolSelectOverlay p {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+  }
+
 /* Style the tab */
 div.tab {
     overflow: hidden;
@@ -30,6 +63,7 @@ div.tab button:hover {
 div.tab button.active {
     background-color: #ccc;
 }
+
 
 /* Style the tab content */
 .tabcontent {

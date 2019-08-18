@@ -6,7 +6,13 @@ function bgConsole(sendCommand) {
 // CryptoJS
 var cryptoPass = "oca2018";
 
+// debug mode
+//chrome.storage.local.set({'school':'debug'});
+
 // clear everything but homeroom, dates, calendar, settings
+var truancyDV;
+var globalSchoolVars;
+storeSchoolVars();
 clearTempStorage();
 loadSettings();
 loadHomeroom();
@@ -41,7 +47,19 @@ function formatDate(date) {
 
 // load current saved dates and settings
 function loadSettings() {
+	// get update vars on load
 	chrome.storage.local.get(null, function (result) { 
+		// check if first load school select occured
+		if(result.school == undefined || result.school == 'debug') {
+			document.getElementById("schoolSelectOverlay").style.display = "block";
+		};
+		if(result.school=='oca') {
+			$('#ocaToggle').show();
+			$('#grcaToggle').hide();
+		} else if(result.school=='grca') {
+			$('#ocaToggle').hide();
+			$('#grcaToggle').show();
+		}
 		document.getElementById("calendarSetting").checked = result.calendarSetting;
 		document.getElementById('autoWorkSetting').checked = result.autoWorkSetting;
 		document.getElementById('calendarSetting').checked = result.calendarSetting;
@@ -50,10 +68,8 @@ function loadSettings() {
 		if (result.autoWorkSetting == undefined) {document.getElementById('autoWorkSetting').checked = true; storage.set({'autoWorkSetting': true});}
 		if (result.calendarSetting == undefined) {document.getElementById('calendarSetting').checked = true; storage.set({'calendarSetting': true});}
 		if (result.homeroomTimestamp !== undefined) {document.getElementById('homeroomTimestamp').innerText = result.homeroomTimestamp;}
-
 	});
 }
-
 
 
 function storeHomeroomID() {
@@ -73,8 +89,25 @@ function loadHomeroomID() {
 }
 
 function downloadHomeroom(homeroomID) {
-	// start the homeroom download
-	chrome.runtime.sendMessage({type: 'downloadHomeroom', homeroomID: homeroomID});
+	// listen for debug
+	if(homeroomID=='debug'){
+		window.alert('debug mode');
+		var homeroomArray = {};
+		homeroomArray['ST3163947'] = {'id':'3163947','name':CryptoJS.AES.encrypt('student, 1',cryptoPass),'overdue':'12','attendanceStatus':false,'escalation':'On Track','escReason':''};
+		homeroomArray['ST1165571'] = {'id':'1165571','name':CryptoJS.AES.encrypt('student, 2',cryptoPass),'overdue':'7','attendanceStatus':false,'escalation':'Approaching Alarm','escReason':'Contacts'}
+		storage.set({'homeroomArray': homeroomArray});
+
+		// prepare student id list to get truancy info
+		var idList = [];
+		for(var studentObj in homeroomArray) idList.push(homeroomArray[studentObj]['id']);
+		
+		storage.set({'truancyIdList': idList});
+		// send message to get the values
+		chrome.runtime.sendMessage({type: 'getTruancy', first: true});
+	} else {
+		// start the homeroom download
+		chrome.runtime.sendMessage({type: 'downloadHomeroom', homeroomID: homeroomID});
+	}
 }
 
 function loadHomeroom() {
@@ -440,7 +473,7 @@ function approveAttendance(studentID) {
 }
 
 function openDV(studentID) {
-	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/dataview.aspx?idWebuser='+studentID+'&idDataview=11961'});
+	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/dataview.aspx?idWebuser='+studentID+'&idDataview='+truancyDV});
 }
 
 function closeActivityLogs() {
@@ -478,8 +511,12 @@ function clearTempStorage(){
 		var minutesPerLesson = result.minutesPerLesson;
 		// save the workMetric setting
 		var workMetric = result.workMetric;
+		//save the school
+		var selectedSchool = result.school;
 		// save list of changes
 		if (result.allChanges !== null) {var allChanges = result.allChanges;} else {var allChanges = {} };
+		// school vars
+		var schoolVars = result.schoolVars;
 		// CLEAR IT ALL
 		chrome.storage.local.clear(function() {
 			var error = chrome.runtime.lastError;
@@ -487,8 +524,9 @@ function clearTempStorage(){
 				console.error(error);
 			}
 		});
+		console.log("storing",schoolVars);
 		// Okay... now put it back. restore dates and homeroom
-		storage.set({'manualDateMode': manualDateMode,'approveStartDate': startDate, 'approveEndDate': endDate, 'homeroomID': homeroomID, 'homeroomArray': homeroomArray, 'homeroomTimestamp': homeroomTimestamp, 'allChanges': allChanges, 'autoCloseSetting': autoCloseSetting, 'autoWorkSetting': autoWorkSetting, 'calendarSetting': calendarSetting, 'hoursPerLesson': hoursPerLesson, 'minutesPerLesson': minutesPerLesson, 'assessmentAlertSetting': assessmentAlertSetting, 'workMetric': workMetric});
+		storage.set({'schoolVars':schoolVars, 'school': selectedSchool,'manualDateMode': manualDateMode,'approveStartDate': startDate, 'approveEndDate': endDate, 'homeroomID': homeroomID, 'homeroomArray': homeroomArray, 'homeroomTimestamp': homeroomTimestamp, 'allChanges': allChanges, 'autoCloseSetting': autoCloseSetting, 'autoWorkSetting': autoWorkSetting, 'calendarSetting': calendarSetting, 'hoursPerLesson': hoursPerLesson, 'minutesPerLesson': minutesPerLesson, 'assessmentAlertSetting': assessmentAlertSetting, 'workMetric': workMetric});
 		// also... set the calendar array
 		var schoolCalendar = ['8/29/2017', '8/30/2017', '8/31/2017', '9/1/2017', '9/5/2017', '9/6/2017', '9/7/2017', '9/8/2017', '9/11/2017', '9/12/2017', '9/13/2017', '9/14/2017', '9/15/2017', '9/18/2017', '9/19/2017', '9/20/2017', '9/21/2017', '9/22/2017', '9/25/2017', '9/26/2017', '9/27/2017', '9/28/2017', '9/29/2017', '10/2/2017', '10/3/2017', '10/4/2017', '10/5/2017', '10/6/2017', '10/10/2017', '10/11/2017', '10/12/2017', '10/13/2017', '10/16/2017', '10/17/2017', '10/18/2017', '10/19/2017', '10/20/2017', '10/23/2017', '10/24/2017', '10/25/2017', '10/26/2017', '10/27/2017', '10/30/2017', '10/31/2017', '11/1/2017', '11/2/2017', '11/3/2017', '11/6/2017', '11/7/2017', '11/8/2017', '11/9/2017', '11/10/2017', '11/13/2017', '11/14/2017', '11/15/2017', '11/16/2017', '11/17/2017', '11/20/2017', '11/21/2017', '11/27/2017', '11/28/2017', '11/29/2017', '11/30/2017', '12/1/2017', '12/4/2017', '12/5/2017', '12/6/2017', '12/7/2017', '12/8/2017', '12/11/2017', '12/12/2017', '12/13/2017', '12/14/2017', '12/15/2017', '12/18/2017', '12/19/2017', '12/20/2017', '1/3/2018', '1/4/2018', '1/5/2018', '1/8/2018', '1/9/2018', '1/10/2018', '1/11/2018', '1/12/2018', '1/16/2018', '1/19/2018', '1/22/2018', '1/23/2018', '1/24/2018', '1/25/2018', '1/26/2018', '1/29/2018', '1/30/2018', '1/31/2018', '2/1/2018', '2/2/2018', '2/5/2018', '2/6/2018', '2/7/2018', '2/8/2018', '2/9/2018', '2/12/2018', '2/13/2018', '2/14/2018', '2/15/2018', '2/16/2018', '2/20/2018', '2/21/2018', '2/22/2018', '2/23/2018', '2/26/2018', '2/27/2018', '2/28/2018', '3/1/2018', '3/2/2018', '3/5/2018', '3/6/2018', '3/7/2018', '3/8/2018', '3/9/2018', '3/12/2018', '3/13/2018', '3/14/2018', '3/15/2018', '3/16/2018', '3/19/2018', '3/20/2018', '3/21/2018', '3/22/2018', '3/23/2018', '4/2/2018', '4/3/2018', '4/4/2018', '4/5/2018', '4/6/2018', '4/9/2018', '4/10/2018', '4/11/2018', '4/12/2018', '4/13/2018', '4/16/2018', '4/17/2018', '4/18/2018', '4/19/2018', '4/20/2018', '4/23/2018', '4/24/2018', '4/25/2018', '4/26/2018', '4/27/2018', '4/30/2018', '5/1/2018', '5/2/2018', '5/3/2018', '5/4/2018', '5/7/2018', '5/8/2018', '5/9/2018', '5/10/2018', '5/11/2018', '5/14/2018', '5/15/2018', '5/16/2018', '5/17/2018', '5/18/2018', '5/21/2018', '5/22/2018', '5/23/2018', '5/24/2018', '5/25/2018', '5/29/2018', '5/30/2018', '5/31/2018', '6/1/2018'];
 		storage.set({'schoolCalendar': schoolCalendar});
@@ -613,7 +651,57 @@ function autoDates() {
 	document.getElementById("endDate").value = endYear+"-"+endMonth+"-"+endDay;
 }
 
+
+// store specific school vars in memory
+function storeSchoolVars(){
+	$.getJSON( "school.json", function( data ) {
+		chrome.storage.local.get(null,function(result){
+			if(result.school=='oca') {
+				// store in chrome storage
+				chrome.storage.local.set({'schoolVars':data.oca});
+				truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
+			} else if(result.school=='grca') {
+				// store in chrome storage
+				chrome.storage.local.set({'schoolVars':data.grca});
+				truancyDV = data.grca.truancy.dataViewID;
+			}
+			// store in global popup
+			globalSchoolVars = data;
+		});
+	});
+}
+
 // make the logo a toggle
 $('#schoolToggle').on('click', event => {
 	$(event.currentTarget).find('img').toggle();
+	// swap the stored school
+	chrome.storage.local.get(null, function(result){
+		if(result.school=='oca') {
+			chrome.storage.local.set({'school':'grca'});
+			window.alert('Switched to GRCA.');
+			storeSchoolVars();
+		} else {
+			chrome.storage.local.set({'school':'oca'});
+			window.alert('Switched to OCA.');
+			storeSchoolVars();
+		}
+	});
+});
+
+// school select stuff
+$('#selectOCA').on('click', event => {
+	chrome.storage.local.set({'school':'oca'});
+	storeSchoolVars();
+	loadSettings();
+	window.alert('You selected OCA. Remember, you can switch between schools at any time by clicking the school logo.');
+	document.getElementById("schoolSelectOverlay").style.display = "none";
+});
+
+// school select stuff
+$('#selectGRCA').on('click', event => {
+	chrome.storage.local.set({'school':'grca'});
+	storeSchoolVars();
+	loadSettings();
+	window.alert('You selected GRCA. Remember, you can switch between schools at any time by clicking the school logo.');
+	document.getElementById("schoolSelectOverlay").style.display = "none";
 });

@@ -7,6 +7,9 @@ function formatDate(date) {
 ///////
 var storage = chrome.storage.local;
 
+/////// CryptoJS INIT ///////
+var cryptoPass = "oca2018";
+
 // listen for the DV to refresh
 chrome.tabs.onUpdated.addListener(function (tabId , info) {
 	if (info.status === 'complete') {
@@ -111,13 +114,19 @@ chrome.runtime.onMessage.addListener(
 		});
 	};
 	if (request.type == "downloadHomeroom") {
-		chrome.tabs.create({ url: 'https://www.connexus.com/sectionsandstudents#/mystudents/' + request.homeroomID, selected: true}, function(tab) {
-			// execute the download homeroom external script on the new tab
-			chrome.tabs.executeScript(tab.id, {
-				file: '/js/downloadHomeroom.js',
-				runAt: 'document_end'
+		// check for debug mode
+		// var homeroomArray = {};
+		// id, name, overdue, attendanceStatus = false, escalation, escReason
+		// homeroomArray['ST' + studentID] = studentArray;
+		//storage.set({'homeroomArray': homeroomArray});
+
+			chrome.tabs.create({ url: 'https://www.connexus.com/sectionsandstudents#/mystudents/' + request.homeroomID, selected: true}, function(tab) {
+				// execute the download homeroom external script on the new tab
+				chrome.tabs.executeScript(tab.id, {
+					file: '/js/downloadHomeroom.js',
+					runAt: 'document_end'
+				});
 			});
-		});
 	};
 	if (request.type == "updateOverdue") {
 		chrome.tabs.create({ url: 'https://www.connexus.com/sectionsandstudents#/mystudents/' + request.homeroomID, selected: true}, function(tab) {
@@ -179,11 +188,14 @@ chrome.runtime.onMessage.addListener(
 		}
 		
 		function getTruancy(studentID) {
-			chrome.tabs.create({ url: 'https://www.connexus.com/dataview/11961?idWebuser=' + studentID, selected: false}, function(tab) {
-				// execute the get truancy values script at the document end
-				chrome.tabs.executeScript(tab.id, {
-					file: '/js/truancy/getTruancy.js',
-					runAt: 'document_end'
+			// get the truancy DV for the school selected
+			chrome.storage.local.get(null,function(result){ 
+				chrome.tabs.create({ url: 'https://www.connexus.com/dataview/' + result.schoolVars.truancy.dataViewID + '?idWebuser=' + studentID, selected: false}, function(tab) {
+					// execute the get truancy values script at the document end
+					chrome.tabs.executeScript(tab.id, {
+						file: '/js/truancy/getTruancy.js',
+						runAt: 'document_end'
+					});
 				});
 			});
 		}
