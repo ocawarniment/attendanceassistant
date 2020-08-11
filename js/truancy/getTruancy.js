@@ -77,7 +77,24 @@ storage.get(null, function(result) {
 					window.alert(totalApproved + " | " + totalRequired);
 					totalMissingHours = Math.round(100*(totalApproved - totalRequired))/100
 				};
-				
+
+				// check CCP and CTE
+				var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
+				if(cte !== ''){
+					homeroomArray['ST' + studentID]['cte'] = true;
+				} else {
+					homeroomArray['ST' + studentID]['cte'] = false;
+				}
+				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
+				if(ccp !== ''){
+					homeroomArray['ST' + studentID]['ccp'] = true;
+				} else {
+					homeroomArray['ST' + studentID]['ccp'] = false;
+				}
+
+				// test state ID
+				homeroomArray['ST' + studentID]['stateId'] =  document.getElementById(result.schoolVars.truancy.stateId.toString()).innerText;
+
 				// debug and testing color coding
 				//overdue = "26";
 				//lastLogin = 8/10/2018;

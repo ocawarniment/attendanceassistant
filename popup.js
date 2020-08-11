@@ -12,6 +12,7 @@ var cryptoPass = "oca2018";
 // clear everything but homeroom, dates, calendar, settings
 var truancyDV;
 var globalSchoolVars;
+console.log('test');
 storeSchoolVars();
 clearTempStorage();
 loadSettings();
@@ -283,7 +284,9 @@ function loadHomeroom() {
 			if (homeroomArray[student]['attendanceStatus'] == true) {approveButton.innerHTML = "<strike>" + approveButton.innerText + "</strike>";}
 			approveButton.type = "button";
 			approveButton.class = homeroomArray[student]['id'];
-			approveButton.onclick = function() {approveAttendance(this.class);};
+			approveButton.cte = homeroomArray[student]['cte'];
+			approveButton.ccp = homeroomArray[student]['ccp'];
+			approveButton.onclick = function() {approveAttendance(this.class, {"cte":this.cte, "ccp":this.ccp});};
 			approveCell.appendChild(approveButton);
 			
 			// add the cells to the row
@@ -469,7 +472,7 @@ function setIndicators() {
 			if (indicator == 0) {approveButton.setAttribute('style', 'background-color: #9fff96; font-family: opensans;'); approveButton.innerText = "Approve";}
 			
 			// if indicator >= 1 then calendar view
-			if (indicator >= 1) { approveButton.onclick = function() {approveAttendance(this.class);}; }
+			if (indicator >= 1) { approveButton.onclick = function() {approveAttendance(this.class, {"cte":this.cte, "ccp":this.ccp});}; }
 
 			// set hours button to go to DV
 			tableRows[i].getElementsByTagName("td")[3].getElementsByTagName('button')[0].class = studentID;
@@ -498,14 +501,19 @@ function updateHours() {
 	window.close();
 }
 
-function approveAttendance(studentID) {
+function approveAttendance(studentID, studentInfo) {
 	
 	closeActivityLogs();
 	
 	var startDate = document.getElementById("startDate").value;
 	var endDate = document.getElementById("endDate").value;
 
-	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate, selected: true}, function(tab) { });
+	var extraInfo = '';
+	if(studentInfo.cte == true || studentInfo.ccp == true) {
+		extraInfo = "&cte=" + studentInfo.cte + "&ccp=" + studentInfo.ccp;
+	}
+
+	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate + extraInfo, selected: true}, function(tab) { });
 }
 
 
@@ -693,21 +701,44 @@ function autoDates() {
 
 // store specific school vars in memory
 function storeSchoolVars(){
-	$.getJSON( "school.json", function( data ) {
-		chrome.storage.local.get(null,function(result){
-			if(result.school=='oca') {
-				// store in chrome storage
-				chrome.storage.local.set({'schoolVars':data.oca});
-				truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
-			} else if(result.school=='grca') {
-				// store in chrome storage
-				chrome.storage.local.set({'schoolVars':data.grca});
-				truancyDV = data.grca.truancy.dataViewID;
-			}
-			// store in global popup
-			globalSchoolVars = data;
+	try{
+		// pull from cloud
+		$.getJSON("https://ocawarniment.github.io/school.json", function( data ) {
+			bgConsole(data);
+			chrome.storage.local.get(null,function(result){
+				if(result.school=='oca') {
+					// store in chrome storage
+					chrome.storage.local.set({'schoolVars':data.oca});
+					truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
+				} else if(result.school=='grca') {
+					// store in chrome storage
+					chrome.storage.local.set({'schoolVars':data.grca});
+					truancyDV = data.grca.truancy.dataViewID;
+				}
+				// store in global popup
+				globalSchoolVars = data;
+			});
 		});
-	});
+	} catch(err) {
+		// backup to local
+		$.getJSON("school.json", function( data ) {
+			bgConsole(data);
+			chrome.storage.local.get(null,function(result){
+				if(result.school=='oca') {
+					// store in chrome storage
+					chrome.storage.local.set({'schoolVars':data.oca});
+					truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
+				} else if(result.school=='grca') {
+					// store in chrome storage
+					chrome.storage.local.set({'schoolVars':data.grca});
+					truancyDV = data.grca.truancy.dataViewID;
+				}
+				// store in global popup
+				globalSchoolVars = data;
+			});
+		});
+	}
+	
 }
 
 // make the logo a toggle

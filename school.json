@@ -2,16 +2,18 @@
   "oca": {
       "name":"oca", 
       "truancy": {
-        "dataViewID": "13755",
+        "dataViewID": "14661",
         "lastLogin": "EF_LastLogin",
         "lastContact": "EF_StudentLastSynchronousContact",
-        "missingHours":"OCA_Truancy1920_HrsMissedYTD",
+        "missingHours":"OCA_Truancy2021_HrsMissedYTD",
         "gapDate": "OCA_LastDayWUnapprovedAttend",
-        "totalApproved": "OCA_Truancy1920_ActualAttHrs",
-        "totalRequired": "OCA_Truancy1920_ReqInstrucHrs",
+        "totalApproved": "OCA_Truancy2021_ActualAttHrs_History",
+        "totalRequired": "OCA_Truancy2021_ReqInstrucHrs",
         "lessonsBehind": "EF_NumberLessonsBehind",
         "attendanceMetric": "EF_AttendanceMetric",
-        "firstDay": "EF_EnrollmentDate"
+        "firstDay": "EF_EnrollmentDate",
+        "cteStudent": "EnrolledinCTECourse_2021",
+        "ccpStudent": "EnrolledInCollege_2021"
       },
       "work": {
         "dataViewID": "#####"
@@ -23,13 +25,15 @@
           "dataViewID": "13831",
           "lastLogin": "EF_LastLogin",
           "lastContact": "EF_StudentLastSynchronousContact",
-          "missingHours":"GRCA_Truancy1920_HrsMissedYTD",
+          "missingHours":"GRCA_Truancy2021_HrsMissedYTD",
           "gapDate": "GRCA_LastDayWUnapprovedAttend",
-          "totalApproved": "GRCA_Truancy1920_ActualAttHrs",
-          "totalRequired": "GRCA_Truancy1920_ReqInstrucHrs",
+          "totalApproved": "GRCA_Truancy2021_ActualAttHrs_History",
+          "totalRequired": "GRCA_Truancy2021_ReqInstrucHrs",
           "lessonsBehind": "EF_NumberLessonsBehind",
           "attendanceMetric": "EF_AttendanceMetric",
-          "firstDay": "EF_EnrollmentDate"
+          "firstDay": "EF_EnrollmentDate",
+          "cteStudent": "EnrolledinCTECourse_2021",
+          "ccpStudent": "EnrolledInCollege_2021"
         },
         "work": {
           "dataViewID": "#####"

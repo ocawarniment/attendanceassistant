@@ -30,6 +30,17 @@ if (pageState == "active") {
 	getWork();
 	adjustApproveButton();
 	floatTotalDiv();
+	addCTECCP();
+}
+
+function addCTECCP(){
+	var url = window.location.href;
+	var cte = url.includes('cte=true');
+	var ccp = url.includes('ccp=true');
+
+	if(cte == true || ccp == true){
+		window.alert('CCP or CTE STUDENT!!!');
+	}
 }
 
 function getTotalTime() {
