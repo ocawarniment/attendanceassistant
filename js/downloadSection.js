@@ -10,63 +10,47 @@ var cryptoPass = "oca2018";
 // reset the date mode
 storage.set({'manualDateMode': "FALSE"});
 
-// allow for backup plan?
-var BACKUP_PLAN = true;
-
 // temporarily wait until the page has loaded completely
 getStudents();
 
 function getStudents() {	
 	var loopCount = 0;
 	bgConsole('attempting...');
-	checkLoad('sections-and-students');
+	checkLoad('dataGridCondensed dataGridPager');
 
+    // function to loop and wait for page load
 	function checkLoad(elementID) {
 		setTimeout(function() {
 			if (checkElement(elementID) == false) {
 				loopCount = loopCount + 1;
 				bgConsole('check element returns false. Starting attempt #' + loopCount);
-				if (loopCount <= 7) {
+				if (loopCount <= 10) {
 					checkLoad(elementID);
 				} else {
-					window.alert('Unable to download this homeroom section.\n\nIf you are not a homeroom teacher of this section, make sure to uncheck "Homeroom Section" on the attendance assistant.');
+					alert('It appears there is an issue with your internet connection. Please try again later!');
+					chrome.runtime.sendMessage({type: 'closeTab'});
 				}
-			} else {	
-				// check if this is the section they wanted. prompt for other section
-				if(window.location.href=="https://www.connexus.com/sectionsandstudents#/mystudents/" & BACKUP_PLAN==true) {
-					// user does not have access to section. prompt for alt method
-					window.alert('You are not a homeroom teacher in this section. Please review the section ID or uncheck "Homeroom Section" on the attendance assitant.')
-				}
-
+			} else {
+                // found it! lets get it	
 				try{
 					// get number of students
+					
 					var studentCountString; // string to cut down to extract the number
 					var studentcount; // integer to use in loops
-					studentCountString = document.getElementsByClassName("sas-student-count ng-binding")[0].children[0].innerText;
+					studentCountString = document.getElementById("users_grid_ctl01_lblNumRecords").innerText;
 					studentCountString = studentCountString.match(/\d+/g)[0];
 					studentCount = studentCountString;
+					bgConsole("testing");
 				} catch(err) {
 					// shouldnt happen....
 					bgConsole('check element returned true, yet DOM did not load the student table');
-				}
-				// check that it is homeroom
-				var sectionTitle = document.getElementsByClassName('chosen-container chosen-container-single')[0].childNodes[0].childNodes[0].innerText;
-				if(sectionTitle.indexOf('Homeroom') !== -1) {
-					// collect the table
-					var studentTable;
-					studentTable = document.getElementById("sections-and-students").getElementsByTagName("table")[0];
-					scanTable();
-				} /*else {
-					var answer = confirm('This does not appear to be a homeroom section. Are you sure you wish to download this list?')
-					if (answer){ 
-						// collect the table
-						var studentTable;
-						studentTable = document.getElementById("sections-and-students").getElementsByTagName("table")[0];
-						scanTable();
-					} else {
-						//chrome.runtime.sendMessage({type: 'closeTab'});
-					}
-				}*/
+                }
+                
+                // collect the table
+                var studentTable;
+                studentTable = document.getElementById("users_grid").getElementsByTagName("table")[0];
+                
+                scanTable();
 			}
 			function checkElement(elementID) {
 				var status = true;
@@ -74,18 +58,18 @@ function getStudents() {
 				try {
 					// If theres an error end
 					try { 
-						var checkError = document.getElementById('sections-and-students').innerText; 
+						var checkError = document.getElementById('saveButton').innerText; 
 						if (checkError.indexOf('Error') !== -1) { alert("No section exists with that ID! Please review the Homeroom ID."); chrome.runtime.sendMessage({type: 'closeTab'});} 
-					}catch(err) { }
-					// try scanTable and if it works, GREAT were done!
-					// get number of students
+                    }catch(err) { }
+
+                    // get number of students
 					var studentCountString; // string to cut down to extract the number
 					var studentcount; // integer to use in loops
-					studentCountString = document.getElementsByClassName('sas-student-count ng-binding')[0].innerText;
-					studentCountString = studentCountString.match(/\d+(?=\W)/g)[0];
-					studentCount = studentCountString;
-					var checkElement = document.getElementsByClassName("my-students cxForm ng-scope")[0].getElementsByClassName("cxTable ng-scope")[0].getElementsByTagName("tbody")[0].getElementsByTagName("tr")[studentCount - 1].innerText;
-				} catch(err) {
+					studentCountString = document.getElementById("users_grid_ctl01_lblNumRecords").innerText;
+					studentCountString = studentCountString.match(/\d+/g)[0];
+                    studentCount = studentCountString;
+                    
+                } catch(err) {
 					bgConsole('element not loaded...');
 					status = false;
 				}
@@ -99,93 +83,76 @@ function scanTable() {
 	storage.get(null, function(result) {
 		// print all tbody elements
 		var studentRows;
-		studentRows = document.getElementsByClassName("my-students cxForm ng-scope")[0].getElementsByClassName("cxTable ng-scope")[0].getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-		
+		//studentRows = document.getElementsByClassName("my-students cxForm ng-scope")[0].getElementsByClassName("cxTable ng-scope")[0].getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        studentRows = document.querySelectorAll('#users_grid > tbody > tr');
+        
 		// get number of students
-		var studentCountString; // string to cut down to extract the number
-		var studentcount; // integer to use in loops
-		studentCountString = document.getElementsByClassName("sas-student-count ng-binding")[0].innerText;
-		studentCountString = studentCountString.match(/\d+/g)[0];
-		studentCount = studentCountString;
+        var studentCountString; // string to cut down to extract the number
+        var studentcount; // integer to use in loops
+        studentCountString = document.getElementById("users_grid_ctl01_lblNumRecords").innerText;
+        studentCountString = studentCountString.match(/\d+/g)[0];
+        studentCount = studentCountString;
 
 		var homeroomArray = {}; // array of students This will hold multiple student objects.
 		var allChanges = {};
+        
 		
-		// get the overdue column
-		overdueCol = 9;
-		overdueFound = false;
-		headers = document.getElementsByClassName("my-students cxForm ng-scope")[0].getElementsByClassName("cxTable ng-scope")[0].getElementsByTagName("thead")[0].getElementsByTagName("th");
-		h = 3;
-		while (h < headers.length) {
-			try {
-				headerText = headers[h].getElementsByTagName("a")[0].getElementsByTagName("span")[0].getElementsByTagName("span")[0].innerText
-				if (headerText == "Total Overdue") {
-					overdueCol = h;
-					overdueFound = true;
-				}
-			} catch(err) {}
-			h++;
-		}
+	    i = 1;
+        while (i <= studentCount) {
+            
+            var studentID;
+            studentID = studentRows[i+1].getElementsByTagName("td")[0].innerText.trim();
+
+            var studentName;
+			studentName = studentRows[i+1].getElementsByTagName("td")[1].innerText.trim();
+			bgConsole(studentName);
+
+            var studentOverdue;
+            studentOverdue = "-";
+
+            var studentEsc;
+            studentEsc = "Exempt"
+            var escReason = studentEsc;
+            escReason = "N/A";
+
+            studentArray = {};
+            studentArray['id'] = studentID;
+            studentArray['name'] = CryptoJS.AES.encrypt(studentName,cryptoPass);;
+            studentArray['overdue'] = "-";
+            studentArray['attendanceStatus'] = false;
+            studentArray['escalation'] = "Exempt";
+            studentArray['escReason'] = "N/A";
+            try{
+                studentArray['oldOverdue'] = result.homeroomArray["ST" + studentID]['overdue'];
+            } catch (err) {
+                studentArray['oldOverdue'] = 0;
+            }
+            
+            homeroomArray['ST' + studentID] = {}; 
+            homeroomArray['ST' + studentID] = studentArray;
+            
+            // set the blank array of changes on first load
+            allChanges[studentID] = [];
+            
+            i++;
+        }
+        
+        // set the allChanges object back into storage
+        storage.set({'allChanges': allChanges});
+        
+        // set the array to access it on the popup
+        storage.set({'homeroomArray': homeroomArray});
+        
+        // prepare student id list to get truancy info
+        var idList = [];
+        for(var studentObj in homeroomArray) idList.push(homeroomArray[studentObj]['id']);
+        
+        // since no OD lesson force lessons behind pulled from DV
+        storage.set({'workMetric':'behind'});
+
+        // go to truancy dataview and get more values
+        getTruancy(idList);
 		
-		// if OD column never found close
-		if (overdueFound == true) {
-			i = 0;
-			while (i <= studentCount - 1) {
-				
-				bgConsole("table loop");
-				var studentID;
-				studentID = studentRows[i].getElementsByTagName("td")[0].innerText.trim();
-
-				var studentName;
-				studentName = studentRows[i].getElementsByClassName("nameWithContextMenu nameWithContextMenu3 ng-binding")[0].innerText;
-				var studentOverdue;
-				studentOverdue = studentRows[i].getElementsByTagName("td")[overdueCol].innerText;
-				if (studentOverdue.search("lesson") != -1) {studentOverdue = studentOverdue.match(/\d+/g)[0]} else {studentOverdue = 0}
-				
-				var studentEsc;
-				studentEsc = studentRows[i].getElementsByTagName("td")[7].innerText.trim();
-				var escReason = studentEsc;
-				if (studentEsc == 'Approaching Alarm' || studentEsc == 'Alarm') { escReason = studentRows[i].getElementsByTagName("td")[7].getElementsByTagName("a")[0].getAttribute("title"); escReason = escReason.substr(0,escReason.length-1)}
-
-				studentArray = {};
-				studentArray['id'] = studentID;
-				studentArray['name'] = CryptoJS.AES.encrypt(studentName,cryptoPass);;
-				studentArray['overdue'] = studentOverdue;
-				studentArray['attendanceStatus'] = false;
-				studentArray['escalation'] = studentEsc;
-				studentArray['escReason'] = escReason;
-				try{
-					studentArray['oldOverdue'] = result.homeroomArray["ST" + studentID]['overdue'];
-				} catch (err) {
-					studentArray['oldOverdue'] = 0;
-				}
-				
-				homeroomArray['ST' + studentID] = {}; 
-				homeroomArray['ST' + studentID] = studentArray;
-				
-				// set the blank array of changes on first load
-				allChanges[studentID] = [];
-				
-				i++;
-			}
-			
-			// set the allChanges object back into storage
-			storage.set({'allChanges': allChanges});
-			
-			// set the array to access it on the popup
-			storage.set({'homeroomArray': homeroomArray});
-			
-			// prepare student id list to get truancy info
-			var idList = [];
-			for(var studentObj in homeroomArray) idList.push(homeroomArray[studentObj]['id']);
-			
-			// go to truancy dataview and get more values
-			getTruancy(idList);
-		} else {
-			// try to sort and enable it first
-			alert("Please make sure the 'Total Overdue' column is enable and this table is sorted by the 'My Students' column.");
-			document.getElementsByClassName("column-select-menu collapse")[0].setAttribute('style','height: 352px');
-		}
 	});
 }
 

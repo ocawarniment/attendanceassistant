@@ -21,7 +21,6 @@ function formatDate(date) {
 storeWork();
 
 function storeWork() {
-	
 	allLessons = document.getElementById("EF_LessonsCompleted_ByCourse").innerText
 	allAssessments = document.getElementById("EF_AssessmentsCompleted_ByCourse").innerText
 

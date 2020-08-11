@@ -49,7 +49,8 @@ function formatDate(date) {
 function loadSettings() {
 	// get update vars on load
 	chrome.storage.local.get(null, function (result) { 
-		// check if first load school select occured
+		// ARCHIVE check if first load school select occured
+
 		if(result.school == undefined || result.school == 'debug') {
 			document.getElementById("schoolSelectOverlay").style.display = "block";
 		};
@@ -60,6 +61,15 @@ function loadSettings() {
 			$('#ocaToggle').hide();
 			$('#grcaToggle').show();
 		}
+
+		if(result.sectionType == undefined) {
+			$('#homeroomCheckbox')[0].checked = true;
+			storage.set({'sectionType':true});
+		} else {
+			$('#homeroomCheckbox')[0].checked = result.sectionType;
+		}
+		
+
 		document.getElementById("calendarSetting").checked = result.calendarSetting;
 		document.getElementById('autoWorkSetting').checked = result.autoWorkSetting;
 		document.getElementById('calendarSetting').checked = result.calendarSetting;
@@ -90,11 +100,17 @@ function loadHomeroomID() {
 
 function downloadHomeroom(homeroomID) {
 	// listen for debug
-	if(homeroomID=='debug'){
+	if(homeroomID=='debugOCA'){
 		window.alert('debug mode');
 		var homeroomArray = {};
 		homeroomArray['ST3163947'] = {'id':'3163947','name':CryptoJS.AES.encrypt('student, 1',cryptoPass),'overdue':'12','attendanceStatus':false,'escalation':'On Track','escReason':''};
 		homeroomArray['ST1165571'] = {'id':'1165571','name':CryptoJS.AES.encrypt('student, 2',cryptoPass),'overdue':'7','attendanceStatus':false,'escalation':'Approaching Alarm','escReason':'Contacts'}
+		homeroomArray['ST3124609'] = {'id':'3124609','name':CryptoJS.AES.encrypt('student, 1',cryptoPass),'overdue':'12','attendanceStatus':false,'escalation':'On Track','escReason':''};
+		homeroomArray['ST2968145'] = {'id':'2968145','name':CryptoJS.AES.encrypt('student, 2',cryptoPass),'overdue':'7','attendanceStatus':false,'escalation':'Approaching Alarm','escReason':'Contacts'}
+		homeroomArray['ST2190883'] = {'id':'2190883','name':CryptoJS.AES.encrypt('student, 1',cryptoPass),'overdue':'12','attendanceStatus':false,'escalation':'On Track','escReason':''};
+		homeroomArray['ST3240503'] = {'id':'3240503','name':CryptoJS.AES.encrypt('student, 2',cryptoPass),'overdue':'7','attendanceStatus':false,'escalation':'Approaching Alarm','escReason':'Contacts'}
+		homeroomArray['ST2788794'] = {'id':'2788794','name':CryptoJS.AES.encrypt('student, 1',cryptoPass),'overdue':'12','attendanceStatus':false,'escalation':'On Track','escReason':''};
+		homeroomArray['ST2388638'] = {'id':'2388638','name':CryptoJS.AES.encrypt('student, 2',cryptoPass),'overdue':'7','attendanceStatus':false,'escalation':'Approaching Alarm','escReason':'Contacts'}
 		storage.set({'homeroomArray': homeroomArray});
 
 		// prepare student id list to get truancy info
@@ -105,8 +121,20 @@ function downloadHomeroom(homeroomID) {
 		// send message to get the values
 		chrome.runtime.sendMessage({type: 'getTruancy', first: true});
 	} else {
-		// start the homeroom download
-		chrome.runtime.sendMessage({type: 'downloadHomeroom', homeroomID: homeroomID});
+		var continueDownload
+		// check if HR or Section
+		if($('#homeroomCheckbox')[0].checked==false){
+			continueDownload = window.confirm('Note: You are about to download this section as a non-homeroom teacher. You will not be able to access overdue lessons. \n\n If you are a homeroom teacher click CANCEL, check the box "Homeroom Section", and try again. \n\n If you are not a homeroom teacher of this section, click OK to continue.');
+			if(continueDownload) {
+				storage.set({'sectionId': homeroomID});
+				chrome.runtime.sendMessage({type: 'downloadSection'});
+			} else {
+				// do nothing
+			}
+		} else {
+			storage.set({'sectionId': homeroomID});
+			chrome.runtime.sendMessage({type: 'downloadHomeroom', homeroomID: homeroomID});
+		}
 	}
 }
 
@@ -128,10 +156,10 @@ function loadHomeroom() {
 		// enable the change date functions
 		document.getElementById("startDate").onchange = manualModeEnable;
 		document.getElementById("endDate").onchange = manualModeEnable;
-
-		document.getElementById("startDate").value = result.approveStartDate;
-		document.getElementById("endDate").value = result.approveEndDate;
-
+		try {
+			document.getElementById("startDate").value = result.approveStartDate;
+			document.getElementById("endDate").value = result.approveEndDate;
+		} catch(err) {}
 		// variables for loop
 		var studentCount = result.homeroomArray['studentCount'];
 		var homeroomArray = result.homeroomArray;
@@ -201,6 +229,8 @@ function loadHomeroom() {
 			gapDateCell.align = 'center';
 			overdueCell.align = 'center';
 			totalMissingHoursCell.align = 'center';
+			// check if no HR time
+			if(homeroomArray[student]['totalMissingHours']==undefined){homeroomArray[student]['totalMissingHours']="-"};
 			// create the cells
 			if(homeroomArray[student]['totalMissingHours']<0) {colorStyle = 'style="background-color: #ff9696;"'} else {colorStyle=""};// red if negative, keep black if positive
 			totalMissingHoursCell.innerHTML = "<button "+colorStyle+ ">" + homeroomArray[student]['totalMissingHours'] + "</button>";
@@ -216,21 +246,28 @@ function loadHomeroom() {
 				else if(homeroomArray[student]['escalation'] == 'Approaching Alarm') { escIconSrc = 'images/approaching.png' } 
 				else if(homeroomArray[student]['escalation'] == 'On Track') {escIconSrc = '/images/ontrack.png'} 
 				else {escIconSrc = '/images/exempt.png'}
-			escCell.innerHTML = '<img src="' + escIconSrc + '" title="' +homeroomArray[student]['escReason']+ '">';
+
+			// force exempt due to escalation strike
+			//escCell.innerHTML = '<img src="' + escIconSrc + '" title="' +homeroomArray[student]['escReason']+ '">';
+			escCell.innerHTML = '<img src="/images/exempt.png" title="N/A">';
+			
 			nameCell.innerText = decryptedName.toString(CryptoJS.enc.Utf8);
 
 			// Last login days
 			lastLoginCell.innerText = homeroomArray[student]['lastLogin'];
 			if(homeroomArray[student]['lastLogin'] == "-") { lastLoginCell.innerText = "None"; lastLoginCell.setAttribute("style","font-weight:bold");}
-			
+			if(homeroomArray[student]['lastLogin']==undefined) { lastLoginCell.innerText = "-"; }
+
 			// approval gap date
 			gapDateCell.innerText = homeroomArray[student]['gapDate'];
+			if(homeroomArray[student]['gapDate']==undefined) { gapDateCell.innerText = "-"; }
 			
 			// overdue lessons cell
 			var bold = false;
 			var colorAlert = "black";
 			var studentWorkMetric;
 			if( result.workMetric == 'overdue' || result.workMetric == null ) { studentWorkMetric = homeroomArray[student]['overdue'] } else { studentWorkMetric = homeroomArray[student]['lessonsBehind'] }
+			if(studentWorkMetric==undefined){studentWorkMetric="-"};
 			overdueCell.innerHTML = '<a href="https://www.connexus.com/assessments/results/listTaken.aspx?idWebuser=' + homeroomArray[student]['id'] + '" target="_newtab">' + studentWorkMetric + '</a>';
 			
 			if (studentWorkMetric >= 20) { colorAlert = "#d50000", bold = true };
@@ -289,7 +326,7 @@ function loadHomeroom() {
 						studentRows[i].getElementsByTagName('td')[4].firstChild.setAttribute("style","color:black");
 					}
 					toggleButton.setAttribute('class','behind');
-					storage.set({'workMetric':'behind'})
+					storage.set({'workMetric':'behind'});
 				}
 				setIndicators();
 			} else {
@@ -375,7 +412,6 @@ function setIndicators() {
 			var approveButton = tableRows[i].getElementsByTagName("td")[6].getElementsByTagName("button")[0];
 			var advice = "";
 
-			// indicator override
 			if (missingHours > 0) {
 				// >15 ODs
 				if (overdue >=20) {
@@ -472,6 +508,7 @@ function approveAttendance(studentID) {
 	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate, selected: true}, function(tab) { });
 }
 
+
 function openDV(studentID) {
 	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/dataview.aspx?idWebuser='+studentID+'&idDataview='+truancyDV});
 }
@@ -517,6 +554,8 @@ function clearTempStorage(){
 		if (result.allChanges !== null) {var allChanges = result.allChanges;} else {var allChanges = {} };
 		// school vars
 		var schoolVars = result.schoolVars;
+		// homeroom section status
+		var sectionType = result.sectionType;
 		// CLEAR IT ALL
 		chrome.storage.local.clear(function() {
 			var error = chrome.runtime.lastError;
@@ -526,7 +565,7 @@ function clearTempStorage(){
 		});
 		console.log("storing",schoolVars);
 		// Okay... now put it back. restore dates and homeroom
-		storage.set({'schoolVars':schoolVars, 'school': selectedSchool,'manualDateMode': manualDateMode,'approveStartDate': startDate, 'approveEndDate': endDate, 'homeroomID': homeroomID, 'homeroomArray': homeroomArray, 'homeroomTimestamp': homeroomTimestamp, 'allChanges': allChanges, 'autoCloseSetting': autoCloseSetting, 'autoWorkSetting': autoWorkSetting, 'calendarSetting': calendarSetting, 'hoursPerLesson': hoursPerLesson, 'minutesPerLesson': minutesPerLesson, 'assessmentAlertSetting': assessmentAlertSetting, 'workMetric': workMetric});
+		storage.set({'schoolVars':schoolVars, 'school': selectedSchool,'manualDateMode': manualDateMode,'approveStartDate': startDate, 'approveEndDate': endDate, 'homeroomID': homeroomID, 'homeroomArray': homeroomArray, 'homeroomTimestamp': homeroomTimestamp, 'allChanges': allChanges, 'autoCloseSetting': autoCloseSetting, 'autoWorkSetting': autoWorkSetting, 'calendarSetting': calendarSetting, 'hoursPerLesson': hoursPerLesson, 'minutesPerLesson': minutesPerLesson, 'assessmentAlertSetting': assessmentAlertSetting, 'workMetric': workMetric, 'sectionType': sectionType});
 		// also... set the calendar array
 		var schoolCalendar = ['8/29/2017', '8/30/2017', '8/31/2017', '9/1/2017', '9/5/2017', '9/6/2017', '9/7/2017', '9/8/2017', '9/11/2017', '9/12/2017', '9/13/2017', '9/14/2017', '9/15/2017', '9/18/2017', '9/19/2017', '9/20/2017', '9/21/2017', '9/22/2017', '9/25/2017', '9/26/2017', '9/27/2017', '9/28/2017', '9/29/2017', '10/2/2017', '10/3/2017', '10/4/2017', '10/5/2017', '10/6/2017', '10/10/2017', '10/11/2017', '10/12/2017', '10/13/2017', '10/16/2017', '10/17/2017', '10/18/2017', '10/19/2017', '10/20/2017', '10/23/2017', '10/24/2017', '10/25/2017', '10/26/2017', '10/27/2017', '10/30/2017', '10/31/2017', '11/1/2017', '11/2/2017', '11/3/2017', '11/6/2017', '11/7/2017', '11/8/2017', '11/9/2017', '11/10/2017', '11/13/2017', '11/14/2017', '11/15/2017', '11/16/2017', '11/17/2017', '11/20/2017', '11/21/2017', '11/27/2017', '11/28/2017', '11/29/2017', '11/30/2017', '12/1/2017', '12/4/2017', '12/5/2017', '12/6/2017', '12/7/2017', '12/8/2017', '12/11/2017', '12/12/2017', '12/13/2017', '12/14/2017', '12/15/2017', '12/18/2017', '12/19/2017', '12/20/2017', '1/3/2018', '1/4/2018', '1/5/2018', '1/8/2018', '1/9/2018', '1/10/2018', '1/11/2018', '1/12/2018', '1/16/2018', '1/19/2018', '1/22/2018', '1/23/2018', '1/24/2018', '1/25/2018', '1/26/2018', '1/29/2018', '1/30/2018', '1/31/2018', '2/1/2018', '2/2/2018', '2/5/2018', '2/6/2018', '2/7/2018', '2/8/2018', '2/9/2018', '2/12/2018', '2/13/2018', '2/14/2018', '2/15/2018', '2/16/2018', '2/20/2018', '2/21/2018', '2/22/2018', '2/23/2018', '2/26/2018', '2/27/2018', '2/28/2018', '3/1/2018', '3/2/2018', '3/5/2018', '3/6/2018', '3/7/2018', '3/8/2018', '3/9/2018', '3/12/2018', '3/13/2018', '3/14/2018', '3/15/2018', '3/16/2018', '3/19/2018', '3/20/2018', '3/21/2018', '3/22/2018', '3/23/2018', '4/2/2018', '4/3/2018', '4/4/2018', '4/5/2018', '4/6/2018', '4/9/2018', '4/10/2018', '4/11/2018', '4/12/2018', '4/13/2018', '4/16/2018', '4/17/2018', '4/18/2018', '4/19/2018', '4/20/2018', '4/23/2018', '4/24/2018', '4/25/2018', '4/26/2018', '4/27/2018', '4/30/2018', '5/1/2018', '5/2/2018', '5/3/2018', '5/4/2018', '5/7/2018', '5/8/2018', '5/9/2018', '5/10/2018', '5/11/2018', '5/14/2018', '5/15/2018', '5/16/2018', '5/17/2018', '5/18/2018', '5/21/2018', '5/22/2018', '5/23/2018', '5/24/2018', '5/25/2018', '5/29/2018', '5/30/2018', '5/31/2018', '6/1/2018'];
 		storage.set({'schoolCalendar': schoolCalendar});
@@ -678,12 +717,21 @@ $('#schoolToggle').on('click', event => {
 	chrome.storage.local.get(null, function(result){
 		if(result.school=='oca') {
 			chrome.storage.local.set({'school':'grca'});
-			window.alert('Switched to GRCA.');
 			storeSchoolVars();
 		} else {
 			chrome.storage.local.set({'school':'oca'});
-			window.alert('Switched to OCA.');
 			storeSchoolVars();
+		}
+	});
+});
+
+// make the logo a toggle
+$('#homeroomCheckbox').on('click', event => {
+	chrome.storage.local.get(null, function(result){
+		if(result.sectionType == true) {
+			chrome.storage.local.set({'sectionType':false}); 
+		} else {
+			chrome.storage.local.set({'sectionType':true});
 		}
 	});
 });

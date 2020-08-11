@@ -36,11 +36,30 @@ body {
     transform: translate(-50%, -50%)
   }
 
+/* download HR button */
+#downloadHomeroomButton {
+    background-color: #fbfbfb;
+    border: 1px solid #c9c9c9;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+  }
+
 /* Style the tab */
 div.tab {
     overflow: hidden;
     border: 1px solid #ccc;
     background-color: #f1f1f1;
+}
+
+/* style the dates banner */
+#datesBanner {
+    padding-top: 5px; 
+    padding-bottom: 5px;
+    border-top: 1px solid #f7e8c5;	
+    padding-left: 10px;	
+    border-bottom: 1px solid #f7e8c5;	
+    background: #FFFFE0;
 }
 
 /* Style the buttons inside the tab */

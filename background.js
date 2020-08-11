@@ -42,10 +42,11 @@ chrome.runtime.onMessage.addListener(
 	
 	if (request.type == "reloadWork") {
 		function checkLoad() {
+			console.log('test');
 			storage.get(null, function(result) {
 				setTimeout(function() {
 					if(result.workReload == false) {
-						chrome.tabs.executeScript(sender.tab.id, {code: 'if(document.getElementsByClassName("cxaMessage saved").length == 1){chrome.runtime.sendMessage({type: "saveWork"});}', runAt: 'document_end'});
+						chrome.tabs.executeScript(sender.tab.id, {code: 'if(document.getElementsByClassName("cxAlert cxAlertVisible").length == 1){chrome.runtime.sendMessage({type: "saveWork"});}', runAt: 'document_end'});
 						if(loopCount<=15) {
 							loopCount = loopCount + 1;
 							checkLoad();
@@ -128,6 +129,23 @@ chrome.runtime.onMessage.addListener(
 				});
 			});
 	};
+
+	if (request.type == "checkAssessments") {
+		chrome.tabs.create({url: "https://www.connexus.com/assessments/results/listTaken.aspx?idWebuser="+request.studentID, selected: true}, function(tab) {} );
+	}
+
+	if (request.type == "downloadSection") {
+		storage.get(null,function(result){
+			chrome.tabs.create({ url: 'https://www.connexus.com/lmu/sections/webusers.aspx?idSection=' + result.sectionId, selected: true}, function(tab) {
+				// execute the download homeroom external script on the new tab
+				chrome.tabs.executeScript(tab.id, {
+					file: '/js/downloadSection.js',
+					runAt: 'document_end'
+				});
+			});
+		});	
+	};
+
 	if (request.type == "updateOverdue") {
 		chrome.tabs.create({ url: 'https://www.connexus.com/sectionsandstudents#/mystudents/' + request.homeroomID, selected: true}, function(tab) {
 			// execute the download homeroom external script on the new tab
@@ -181,7 +199,7 @@ chrome.runtime.onMessage.addListener(
 					storage.set({'homeroomTimestamp': timestamp});
 					
 					var timestamp = new Date();
-					chrome.tabs.remove(sender.tab.id);
+					try{chrome.tabs.remove(sender.tab.id);} catch(err) {}
 					alert("Your homeroom has been downloaded! Please open the Attendance Assistant to see your updated homeroom.");
 				}
 			});
@@ -201,7 +219,11 @@ chrome.runtime.onMessage.addListener(
 		}
 	}
 	if (request.type == "closeTab") {
-		chrome.tabs.remove(sender.tab.id, function(){});
+		try {
+			chrome.tabs.remove(sender.tab.id, function(){});
+		} catch(err) {
+			// handle the last tab delete error
+		}
 	};
 	////// Store any tab ID in storage to reference later
 	if (request.type == "storeTabID") {

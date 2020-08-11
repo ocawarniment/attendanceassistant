@@ -11,8 +11,11 @@ storage.get(null, function(result) {
 		var studentID = result.truancyID;
 		
 		try{
+			// temp FORCE scrape caButton_ok
+			//var error = document.getElementById('caButton_ok').innerText;
+			// original replace after fix
 			var error = document.getElementById('pageTitleHeaderTextSpan').innerText;
-			alert("This student does not have an active OCA Truancy Tracking 2018-2019 Data View. Please click OK to continue.");
+			alert("This student does not have an active Truancy Tracking Data View. Please click OK to continue.");
 			homeroomArray['ST' + studentID]['lastLogin'] = "N/A";
 			homeroomArray['ST' + studentID]['lastContact'] = "N/A";
 			homeroomArray['ST' + studentID]['missingHours'] = "N/A";
@@ -24,8 +27,6 @@ storage.get(null, function(result) {
 				var totalApproved = document.getElementById(result.schoolVars.truancy.totalApproved.toString()).innerText;
 				var totalRequired = document.getElementById(result.schoolVars.truancy.totalRequired.toString()).innerText;
 				totalMissingHours = document.getElementById(result.schoolVars.truancy.missingHours.toString()).innerText;
-				if (totalMissingHours == "#VALUE!" || totalMissingHours == "") {totalMissingHours = "-"} else {totalMissingHours = Math.round(100*(totalApproved - totalRequired))/100};
-				homeroomArray['ST' + studentID]['totalMissingHours'] = totalMissingHours;
 				
 				//var overdue;
 				//overdue = document.getElementById('EF_NumberLessonsBehind').innerText * 1;
@@ -59,6 +60,23 @@ storage.get(null, function(result) {
 				if (diff >= 21) { homeroomArray['ST' + studentID]['escalation'] = "Alarm" };
 				// set hover text
 				homeroomArray['ST' + studentID]['escReason'] = "Last Contact: " + lastSyncContact;
+
+				// if hours are missing, calculate based on attendance metric and FDP
+				if (totalMissingHours == "#VALUE!" || totalMissingHours == "") {
+					var attendanceMetric = document.getElementById(result.schoolVars.truancy.attendanceMetric.toString()).innerText;
+					attendanceMetric = parseFloat(attendanceMetric); // turn into float
+					var firstDayString = document.getElementById(result.schoolVars.truancy.firstDay.toString()).innerText.trim();
+					var firstDay = new Date(firstDayString);
+					var daysEnrolled = (today-firstDay)/(1000 * 60 * 60 * 24);
+					var weekDays = (daysEnrolled/7)*(-2) + daysEnrolled; // remove weekends... roughly
+					var expectedHours = weekDays*5.5;
+					// if attendane metric <1 then -1
+					totalMissingHours = (attendanceMetric - 1)*expectedHours;
+					totalMissingHours = Math.round(100*totalMissingHours)/100;
+				} else {
+					window.alert(totalApproved + " | " + totalRequired);
+					totalMissingHours = Math.round(100*(totalApproved - totalRequired))/100
+				};
 				
 				// debug and testing color coding
 				//overdue = "26";
@@ -66,7 +84,7 @@ storage.get(null, function(result) {
 				//totalMissingHours = "15";
 				//homeroomArray['ST' + studentID]['overdue'] = overdue;
 				//homeroomArray['ST' + studentID]['lastLogin'] = lastLogin;
-				//homeroomArray['ST' + studentID]['totalMissingHours'] = totalMissingHours;
+				homeroomArray['ST' + studentID]['totalMissingHours'] = totalMissingHours;
 				
 				storage.set({'homeroomArray': homeroomArray});
 				storage.set({'truancyLoading': false});

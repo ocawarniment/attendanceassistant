@@ -23,29 +23,30 @@
 
 <body>
 	<div id="schoolSelectOverlay">
-		<div id="selectBanner">
-			Please select a school.
-		</div>
+		<br>
+		<center>Please select a school.</center>
 		<p> 
-			<img id='selectOCA' src='/images/ocalogo.png' style='cursor: pointer; padding: 25px' />
-			<img id='selectGRCA' src='/images/grcalogo.png' style='cursor: pointer; padding: 25px' />
+			<img id='selectOCA' src='/images/ocalogo.png' style='cursor: pointer; padding: 45px' />
+			<img id='selectGRCA' src='/images/grcalogo.png' style='cursor: pointer; padding: 45px' />
 		</p>
 	</div>
+	<div class="mainNav " role="navigation"></div>
 	<div style="float:left; padding-left:10px">
 		<div id='schoolToggle'>
+			<!-- <img id='connexus' src='/images/connexus.png' style='cursor: pointer' /> -->
 			<img id='ocaToggle' src='/images/ocalogo.png' alt='oca' style='cursor: pointer' />
 			<img id='grcaToggle' src='/images/grcalogo.png' alt ='grca' style='display:none; cursor: pointer;'/>
 		</div>
 		<!-- input id="schoolToggle" type="image" src="/images/ocalogo.png" /> -->
 	</div>
-	<div style="float:right; padding-right:10px">
-		<br><input id="homeroomID" size="10" style="text-align:center">&nbsp;&nbsp;<button id="downloadHomeroomButton" type="button">Download Homeroom</button><div align="center" id="homeroomTimestamp"></div>
+	<div style="float:right; padding-right:10px; margin-top:-10px;">
+		<br><input id="homeroomID" size="10" style="text-align:center">&nbsp;&nbsp;<button id="downloadHomeroomButton" type="button">Download Section</button><div align="center" id="sectionType"><input id="homeroomCheckbox" type="checkbox">Homeroom Section</input></div><div align="center" id="homeroomTimestamp"></div>
 	</div>
-	<br><br><br>
+	<br><br><br><br>
 	<div id="note" style="margin-bottom:-10px">
 		<center>
 		<br>
-		<div id="datesBanner" style="padding-top: 5px; padding-bottom: 5px; border-top: 1px solid #f7e8c5;	padding-left: 10px;	border-bottom: 1px solid #f7e8c5;	background: #FFFFE0;"><b>Current Approval Window: </b><div id="dateMode" style="display: inline">(Automatic - Dates are based on prior school week)</div><br>Start Date: <input type="date" id="startDate">  End Date: <input type="date" id="endDate"></div>
+		<div id="datesBanner" ><b>Current Approval Window: </b><div id="dateMode" style="display: inline">(Automatic - Dates are based on prior school week)</div><br>Start Date: <input type="date" id="startDate">  End Date: <input type="date" id="endDate"></div>
 		<br>
 		</center>
 	</div>
@@ -59,7 +60,6 @@
 			</tr>
 		</table>
 	</div>
-
 	<div id="autoDatesTab" class="tabcontent">
 		<div class="dateHeader" align="center">
 			<b>Connexus Activities Log Auto-Populate Dates</b><br>
