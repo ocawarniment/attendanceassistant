@@ -93,7 +93,7 @@ storage.get(null, function(result) {
 				}
 
 				// test state ID
-				homeroomArray['ST' + studentID]['stateId'] =  document.getElementById(result.schoolVars.truancy.stateId.toString()).innerText;
+				//homeroomArray['ST' + studentID]['stateId'] =  document.getElementById(result.schoolVars.truancy.stateId.toString()).innerText;
 
 				// debug and testing color coding
 				//overdue = "26";

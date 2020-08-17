@@ -39,7 +39,9 @@ function addCTECCP(){
 	var ccp = url.includes('ccp=true');
 
 	if(cte == true || ccp == true){
-		window.alert('CCP or CTE STUDENT!!!');
+		//window.alert('CCP or CTE STUDENT!!!');
+		// add button to clean CAT
+		
 	}
 }
 

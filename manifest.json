@@ -1,7 +1,7 @@
 {
   "name": "Connexus: Attendance Assistant",
   "description": "Overhaul of the default Activities Log page within Connexus.",
-  "version": "7.2.0",
+  "version": "8.0.0",
   "manifest_version": 2,
   "background": {
     "persistent": false,
@@ -18,7 +18,13 @@
       "js": ["CryptoJS/aes.js","activitiesLog.js"],
       "all_frames": true,
       "run_at": "document_end"
-	  }
+    },
+    {
+      "matches": ["https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=*"],
+      "js": ["CryptoJS/aes.js","activityTracker.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
   ],
   "permissions": [
     "webNavigation",

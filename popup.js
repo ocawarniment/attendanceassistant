@@ -13,7 +13,7 @@ var cryptoPass = "oca2018";
 var truancyDV;
 var globalSchoolVars;
 console.log('test');
-storeSchoolVars();
+//refreshSchoolVars();
 clearTempStorage();
 loadSettings();
 loadHomeroom();
@@ -698,48 +698,36 @@ function autoDates() {
 	document.getElementById("endDate").value = endYear+"-"+endMonth+"-"+endDay;
 }
 
-
-// store specific school vars in memory
-function storeSchoolVars(){
-	try{
-		// pull from cloud
-		$.getJSON("https://ocawarniment.github.io/school.json", function( data ) {
-			bgConsole(data);
-			chrome.storage.local.get(null,function(result){
-				if(result.school=='oca') {
-					// store in chrome storage
-					chrome.storage.local.set({'schoolVars':data.oca});
-					truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
-				} else if(result.school=='grca') {
-					// store in chrome storage
-					chrome.storage.local.set({'schoolVars':data.grca});
-					truancyDV = data.grca.truancy.dataViewID;
-				}
-				// store in global popup
-				globalSchoolVars = data;
-			});
-		});
-	} catch(err) {
-		// backup to local
-		$.getJSON("school.json", function( data ) {
-			bgConsole(data);
-			chrome.storage.local.get(null,function(result){
-				if(result.school=='oca') {
-					// store in chrome storage
-					chrome.storage.local.set({'schoolVars':data.oca});
-					truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
-				} else if(result.school=='grca') {
-					// store in chrome storage
-					chrome.storage.local.set({'schoolVars':data.grca});
-					truancyDV = data.grca.truancy.dataViewID;
-				}
-				// store in global popup
-				globalSchoolVars = data;
-			});
-		});
-	}
-	
+// store the downloaded school vars
+function storeSchoolVars(data){
+	chrome.storage.local.get(null,function(result){
+		if(result.school=='oca') {
+			// store in chrome storage
+			chrome.storage.local.set({'schoolVars':data.oca});
+			truancyDV = data.oca.truancy.dataViewID; // needed for link to dv in popup locally
+			bgConsole('oca vars');
+			bgConsole(data.oca);
+		} else if(result.school=='grca') {
+			// store in chrome storage
+			chrome.storage.local.set({'schoolVars':data.grca});
+			truancyDV = data.grca.truancy.dataViewID;
+			bgConsole('grca vars');
+			bgConsole(data.grca);
+		}
+		// store in global popup
+		globalSchoolVars = data;
+	});
 }
+
+// store specific school vars in memory - only download when switching schools
+function refreshSchoolVars(){
+	// pull from github but fallback to local
+	var timestamp = new Date();
+	var schoolJSON = {};
+	$.getJSON("https://ocawarniment.github.io/schools.json" + "?timestamp=" + timestamp.toString(), (data) => { bgConsole("github"); bgConsole(data); storeSchoolVars(data); })
+	  .fail(function() { $.getJSON("school.json", (data) => { bgConsole("local"); bgConsole(data); storeSchoolVars(data);}) });
+}
+
 
 // make the logo a toggle
 $('#schoolToggle').on('click', event => {
@@ -748,10 +736,10 @@ $('#schoolToggle').on('click', event => {
 	chrome.storage.local.get(null, function(result){
 		if(result.school=='oca') {
 			chrome.storage.local.set({'school':'grca'});
-			storeSchoolVars();
+			refreshSchoolVars();
 		} else {
 			chrome.storage.local.set({'school':'oca'});
-			storeSchoolVars();
+			refreshSchoolVars();
 		}
 	});
 });
@@ -770,7 +758,7 @@ $('#homeroomCheckbox').on('click', event => {
 // school select stuff
 $('#selectOCA').on('click', event => {
 	chrome.storage.local.set({'school':'oca'});
-	storeSchoolVars();
+	refreshSchoolVars();
 	loadSettings();
 	window.alert('You selected OCA. Remember, you can switch between schools at any time by clicking the school logo.');
 	document.getElementById("schoolSelectOverlay").style.display = "none";
@@ -779,7 +767,7 @@ $('#selectOCA').on('click', event => {
 // school select stuff
 $('#selectGRCA').on('click', event => {
 	chrome.storage.local.set({'school':'grca'});
-	storeSchoolVars();
+	refreshSchoolVars();
 	loadSettings();
 	window.alert('You selected GRCA. Remember, you can switch between schools at any time by clicking the school logo.');
 	document.getElementById("schoolSelectOverlay").style.display = "none";

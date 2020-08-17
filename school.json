@@ -22,7 +22,7 @@
     "grca": {
         "name":"grca", 
         "truancy": {
-          "dataViewID": "13831",
+          "dataViewID": "14726",
           "lastLogin": "EF_LastLogin",
           "lastContact": "EF_StudentLastSynchronousContact",
           "missingHours":"GRCA_Truancy2021_HrsMissedYTD",
