@@ -105,7 +105,7 @@ function scanTable() {
 
             var studentName;
 			studentName = studentRows[i+1].getElementsByTagName("td")[1].innerText.trim();
-			bgConsole(studentName);
+
 
             var studentOverdue;
             studentOverdue = "-";

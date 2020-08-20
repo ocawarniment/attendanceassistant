@@ -61,7 +61,10 @@ storage.get(null, function(result) {
 				// set hover text
 				homeroomArray['ST' + studentID]['escReason'] = "Last Contact: " + lastSyncContact;
 
+				homeroomArray['ST' + studentID]['totalMissingHours'] = Math.round(100*(totalApproved - totalRequired))/100;
+				//totalMissingHours = Math.round(100*(totalApproved - totalRequired))/100;
 				// if hours are missing, calculate based on attendance metric and FDP
+				/*
 				if (totalMissingHours == "#VALUE!" || totalMissingHours == "") {
 					var attendanceMetric = document.getElementById(result.schoolVars.truancy.attendanceMetric.toString()).innerText;
 					attendanceMetric = parseFloat(attendanceMetric); // turn into float
@@ -74,19 +77,22 @@ storage.get(null, function(result) {
 					totalMissingHours = (attendanceMetric - 1)*expectedHours;
 					totalMissingHours = Math.round(100*totalMissingHours)/100;
 				} else {
-					window.alert(totalApproved + " | " + totalRequired);
+					//window.alert(totalApproved + " | " + totalRequired);
 					totalMissingHours = Math.round(100*(totalApproved - totalRequired))/100
 				};
+				*/
+				//homeroomArray['ST' + studentID]['totalMissingHours'] = totalMissingHours;
+				//homeroomArray['ST' + studentID]['test'] = 'dunno';
 
 				// check CCP and CTE
 				var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
-				if(cte !== ''){
+				if(cte == 'Yes'){
 					homeroomArray['ST' + studentID]['cte'] = true;
 				} else {
 					homeroomArray['ST' + studentID]['cte'] = false;
 				}
 				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
-				if(ccp !== ''){
+				if(ccp == 'Yes'){
 					homeroomArray['ST' + studentID]['ccp'] = true;
 				} else {
 					homeroomArray['ST' + studentID]['ccp'] = false;
@@ -101,7 +107,6 @@ storage.get(null, function(result) {
 				//totalMissingHours = "15";
 				//homeroomArray['ST' + studentID]['overdue'] = overdue;
 				//homeroomArray['ST' + studentID]['lastLogin'] = lastLogin;
-				homeroomArray['ST' + studentID]['totalMissingHours'] = totalMissingHours;
 				
 				storage.set({'homeroomArray': homeroomArray});
 				storage.set({'truancyLoading': false});

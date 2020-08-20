@@ -479,6 +479,7 @@ function setIndicators() {
 			tableRows[i].getElementsByTagName("td")[3].getElementsByTagName('button')[0].onclick = function(){openDV(this.class)};
 			
 			var homeroomArray = result.homeroomArray;
+			console.log(homeroomArray);
 			console.log(homeroomArray['ST' + studentID])
 			if (homeroomArray['ST' + studentID]['attendanceStatus'] == true) {approveButton.setAttribute('style', 'background-color:'); approveButton.innerHTML = '<strike>'+ approveButton.innerHTML + '</strike>';}
 		}
@@ -518,7 +519,9 @@ function approveAttendance(studentID, studentInfo) {
 
 
 function openDV(studentID) {
-	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/dataview.aspx?idWebuser='+studentID+'&idDataview='+truancyDV});
+	chrome.storage.local.get(null, (result) => {
+		chrome.tabs.create({ url: 'https://www.connexus.com/webuser/dataview.aspx?idWebuser='+studentID+'&idDataview='+result.schoolVars.truancy.dataViewID});
+	})
 }
 
 function closeActivityLogs() {
@@ -724,7 +727,7 @@ function refreshSchoolVars(){
 	// pull from github but fallback to local
 	var timestamp = new Date();
 	var schoolJSON = {};
-	$.getJSON("https://ocawarniment.github.io/schools.json" + "?timestamp=" + timestamp.toString(), (data) => { bgConsole("github"); bgConsole(data); storeSchoolVars(data); })
+	$.getJSON("https://ocawarniment.github.io/school.json" + "?timestamp=" + timestamp.toString(), (data) => { bgConsole("github"); bgConsole(data); storeSchoolVars(data); })
 	  .fail(function() { $.getJSON("school.json", (data) => { bgConsole("local"); bgConsole(data); storeSchoolVars(data);}) });
 }
 

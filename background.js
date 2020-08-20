@@ -62,7 +62,6 @@ chrome.runtime.onMessage.addListener(
 		
 		if (request.type == "reloadWork") {
 			function checkLoad() {
-				console.log('test');
 				storage.get(null, function(result) {
 					setTimeout(function() {
 						if(result.workReload == false) {
