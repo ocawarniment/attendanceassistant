@@ -87,13 +87,13 @@ storage.get(null, function(result) {
 				// check CCP and CTE
 				var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
 				if(cte == 'Yes'){
-					homeroomArray['ST' + studentID]['cte'] = true;
+					homeroomArray['ST' + studentID]['cte'] = document.getElementById(result.schoolVars.truancy.cteHours.toString()).value;
 				} else {
 					homeroomArray['ST' + studentID]['cte'] = false;
 				}
 				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
-				if(ccp == 'Yes'){
-					homeroomArray['ST' + studentID]['ccp'] = true;
+				if(ccp !== ''){
+					homeroomArray['ST' + studentID]['ccp'] = document.getElementById(result.schoolVars.truancy.ccpHours.toString()).value;
 				} else {
 					homeroomArray['ST' + studentID]['ccp'] = false;
 				}

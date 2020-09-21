@@ -16,7 +16,6 @@ var weekAssessmentCount = 0
 // loop through and set all daily lesson counts
 var lessonCells = document.getElementsByTagName("td");
 storage.get(null, function (result) {
-	console.log(result.lessonsArray);
 	for(var i = 0; i < lessonCells.length; i++) {
 		var rowDate;
 		if(lessonCells[i].id.indexOf('lessonCountCell') == 0) {
@@ -32,7 +31,6 @@ storage.get(null, function (result) {
 // loop through and set all daily assessment counts
 var assessmentButtons = document.getElementsByTagName("button");
 storage.get(null, function (result) {
-	console.log(result.assessmentsArray);
 	for(var i = 0; i < assessmentButtons.length; i++) {
 		if(assessmentButtons[i].id.indexOf('asstCountButton') == 0) {
 			rowDate = assessmentButtons[i].id.match(/\d*\/\d*\/\d*/g).toString();

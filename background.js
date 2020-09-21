@@ -43,7 +43,161 @@ chrome.runtime.onMessage.addListener(
 			*/
 			
 		}
+
+		if(request.type == "openPage"){
+			chrome.tabs.create({ url: request.url, selected: request.focused }, function(tab) {
+				/*
+				// execute the download homeroom external script on the new tab
+				// var changesText = result.allChanges[result.studentID].toString();
+				chrome.tabs.executeScript(tab.id, {
+					file: '/js/truancyIA.js',
+					runAt: 'document_end'
+				});
+				*/
+			});
+			if(request.closeSender){
+				chrome.tabs.remove(sender.tab.id);
+			}
+		}
+
+		if (request.type == "cteccpAdjust") {
+			console.log(request);
+			chrome.webNavigation.getAllFrames({tabId:sender.tab.id},function(frames){
+				// find the correct frame
+				frames.forEach(frame => {
+					if(frame.url !== sender.tab.url) {
+						catFrameId = frame.frameId;
+					}
+				})
+				// store variables to the inner frame
+				console.log(frames);
+				chrome.tabs.executeScript(sender.tab.id,{
+					frameId: catFrameId,
+					code: 'var callback = "' + request.callback + '"; var dailyHours='+request.dailyHours+'; var adjType="'+request.adjType+'"; var baseQuery="'+request.baseQuery+'"'
+				}),
+				// call the function on the the inner frame
+				chrome.tabs.executeScript(sender.tab.id,{
+					frameId: catFrameId, //allFrames: true,
+					file: "/js/activityTracker/cteccpAdjust.js"
+				},function(results){
+					//Handle any results
+				});
+			});
+		}
+
+		if (request.type == "cteccpCheck") {
+			console.log(request);
+			chrome.webNavigation.getAllFrames({tabId:sender.tab.id},function(frames){
+				// find the correct frame
+				frames.forEach(frame => {
+					if(frame.url !== sender.tab.url) {
+						catFrameId = frame.frameId;
+					}
+				})
+				// store variables to the inner frame
+				console.log(frames);
+				chrome.tabs.executeScript(sender.tab.id,{
+					frameId: catFrameId,
+					code: 'var approve = ' + request.approve + '; var dailyHours='+request.dailyHours+'; var adjType="'+request.adjType+'"; var baseQuery="'+request.baseQuery+'"'
+				}),
+				// call the function on the the inner frame
+				chrome.tabs.executeScript(sender.tab.id,{
+					frameId: catFrameId, //allFrames: true,
+					file: "/js/activityTracker/cteccpCheck.js"
+				},function(results){
+					// handle results
+				});
+			});
+		}
+
+		if (request.type == "cteccpSave") {
+			console.log('trying to save...');
+			chrome.webNavigation.getAllFrames({tabId:sender.tab.id},function(frames){
+				// find the correct frame
+				frames.forEach(frame => {
+					console.log(frame);
+					if(frame.url == sender.tab.url) {
+						parentFrameId = frame.frameId;
+					}
+				})
+				// send to the outter frame
+				chrome.tabs.executeScript(sender.tab.id,{
+					allFrames: true,
+					code: "document.querySelector('.cxPrimaryBtn').click();"
+				},function(results){
+					//Handle any results
+				});
+			});
+		}
+
+		if (request.type == "cteccpAlertResults") {
+			console.log('cteccpStatus: ' + request.correct);
+			chrome.storage.local.get(null, (results)=>{
+				var correct = request.correct;
+				if(correct == false) {
+					const tabId = results.actLogID;
+					chrome.tabs.update(tabId, {selected: true});
+					chrome.tabs.executeScript(tabId, {
+						file: 'js/activityLog/cteccpInitiateChange.js',
+						runAt: 'document_idle'
+					});
+				}
+			})
+			chrome.tabs.remove(sender.tab.id, ()=>{} );
+		}
+
+		if (request.type == "getCatTime") {
+			console.log('trying');
+			chrome.webNavigation.getAllFrames({tabId:sender.tab.id},function(frames){
+				// find the correct frame
+				frames.forEach(frame => {
+					if(frame.url !== sender.tab.url) {
+						catFrameId = frame.frameId;
+					}
+				})
+				// call the function on the the inner frame
+				chrome.tabs.executeScript(sender.tab.id,{
+					frameId: catFrameId, //allFrames: true,
+					file: "/js/activityTracker/getCatTime.js"
+				},function(results){
+					// handle results
+				});
+			});
+		}
+
+		if (request.type == "activityLogOpenAndSave") {
+			// create the tab with the student id
+			setTimeout(()=>{
+				chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx' + request.attendanceParams, selected: true }, function(tab) {
+					// execute the get work script on the opened tab
+					chrome.tabs.executeScript(tab.id, {
+						code: 'var btnApprove = document.querySelector("#btnApprove"); btnApprove.onclick = ()=>{WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("btnApprove", "", true, "approve", "", false, true));}; btnApprove.click();',
+						runAt: 'document_end'
+					});
+				});
+				// close the sender
+				chrome.tabs.remove(sender.tab.id, ()=>{} );
+			},2000);
+		}
 		
+		if (request.type == "activityLogOpen") {
+			// create the tab with the student id
+			setTimeout(()=>{
+				chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx' + request.attendanceParams, selected: true }, function(tab) {
+					var changes = request.changes;
+					var changesString = changes.join(",");
+					console.log(changesString);
+					// execute the get work script on the opened tab
+					chrome.tabs.executeScript(tab.id, {
+						code: 'window.alert("Changes complete!");',
+						runAt: 'document_end'
+					});
+				});
+				// close the sender
+				chrome.tabs.remove(sender.tab.id, ()=>{} );
+			},2000);
+		}
+
 		if (request.type == "getWork") {
 			// close tab id they request
 			if (request.closeSender == true) { chrome.tabs.remove(sender.tab.id); }
@@ -100,6 +254,18 @@ chrome.runtime.onMessage.addListener(
 			// close out any stragglers
 			closeWorkDVs();
 		};
+
+		if (request.type == 'loadCatTime'){
+			// check that the originally id is still stored
+			storage.get('actLogID', function(result) {
+				chrome.tabs.update(result.actLogId, {selected: true});
+				chrome.tabs.executeScript(result.actLogId, {
+					file: '/js/activityLog/loadCatTime.js',
+					runAt: 'document_idle'
+				});
+			});
+			if (request.closeSender == true) { chrome.tabs.remove(sender.tab.id); }
+		}
 
 
 		if (request.type == "searchIA") {

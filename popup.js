@@ -12,7 +12,6 @@ var cryptoPass = "oca2018";
 // clear everything but homeroom, dates, calendar, settings
 var truancyDV;
 var globalSchoolVars;
-console.log('test');
 //refreshSchoolVars();
 clearTempStorage();
 loadSettings();
@@ -183,11 +182,15 @@ function loadHomeroom() {
 		var escHeader = document.createElement("th");
 		var workMetricHeader = document.createElement("th");
 		
-		// DISPLAY LAST SHOWN METRIC
-		console.log(result);
+		// DISPLAY LAST SHOWN METRIC - 2020 year; all grades went to user schedule. No need for OD lessons
 		var workMetricClass = result.workMetric;
+		/*
 		if( workMetricClass == 'overdue' || workMetricClass == null ) { var metricHeader = "Overdue (HS)"; workMetricClass = 'overdue'} else { var metricHeader = "Behind (K8)"; workMetricClass = "behind"}
 		workMetricHeader.innerHTML = '<button id="toggleWorkMetric" class="'+workMetricClass+'">' + metricHeader + '</button>'
+		*/
+		var metricHeader = "Lessons Behind";
+		workMetricClass = 'behind';
+		workMetricHeader.innerHTML = `<th>${metricHeader}</th>`;
 
 		idHeader.innerText = "ID";
 		nameHeader.innerText = "Name";
@@ -479,8 +482,6 @@ function setIndicators() {
 			tableRows[i].getElementsByTagName("td")[3].getElementsByTagName('button')[0].onclick = function(){openDV(this.class)};
 			
 			var homeroomArray = result.homeroomArray;
-			console.log(homeroomArray);
-			console.log(homeroomArray['ST' + studentID])
 			if (homeroomArray['ST' + studentID]['attendanceStatus'] == true) {approveButton.setAttribute('style', 'background-color:'); approveButton.innerHTML = '<strike>'+ approveButton.innerHTML + '</strike>';}
 		}
 	});
@@ -510,10 +511,12 @@ function approveAttendance(studentID, studentInfo) {
 	var endDate = document.getElementById("endDate").value;
 
 	var extraInfo = '';
-	if(studentInfo.cte == true || studentInfo.ccp == true) {
-		extraInfo = "&cte=" + studentInfo.cte + "&ccp=" + studentInfo.ccp;
+	if(studentInfo.cte !== false) {
+		extraInfo = "&cte=" + studentInfo.cte;
 	}
-
+	if(studentInfo.ccp !== false) {
+		extraInfo = "&ccp=" + studentInfo.ccp;
+	}
 	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate + extraInfo, selected: true}, function(tab) { });
 }
 
@@ -727,8 +730,10 @@ function refreshSchoolVars(){
 	// pull from github but fallback to local
 	var timestamp = new Date();
 	var schoolJSON = {};
-	$.getJSON("https://ocawarniment.github.io/school.json" + "?timestamp=" + timestamp.toString(), (data) => { bgConsole("github"); bgConsole(data); storeSchoolVars(data); })
-	  .fail(function() { $.getJSON("school.json", (data) => { bgConsole("local"); bgConsole(data); storeSchoolVars(data);}) });
+	var githubUrl = "https://ocawarniment.github.io/school.json" + "?timestamp=" + timestamp.toString();
+
+	$.getJSON(githubUrl, (data) => { bgConsole("github"); bgConsole(data); storeSchoolVars(data); })
+	  .fail(() => { $.getJSON("school.json", (data) => { bgConsole("local"); bgConsole(data); storeSchoolVars(data);}) });
 }
 
 
