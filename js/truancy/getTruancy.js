@@ -85,26 +85,35 @@ storage.get(null, function(result) {
 				//homeroomArray['ST' + studentID]['test'] = 'dunno';
 
 				// check CCP and CTE
-				var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
-				if(cte == 'Yes'){
-					var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
-					if(cteEle.nodeName.toLowerCase() == 'input') {
-						homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+				try{
+					var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
+					if(cte == 'Yes'){
+						var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
+						if(cteEle.nodeName.toLowerCase() == 'input') {
+							homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+						} else {
+							homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+						}
 					} else {
-						homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+						homeroomArray['ST' + studentID]['cte'] = false;
 					}
-				} else {
+				} catch(err) {
 					homeroomArray['ST' + studentID]['cte'] = false;
 				}
-				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
-				if(ccp !== ''){
-					var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
-					if(ccpEle.nodeName.toLowerCase() == 'input') {
-						homeroomArray['ST' + studentID]['ccp'] = ccpEle.value; 
+				
+				try {
+					var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
+					if(ccp !== ''){
+						var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
+						if(ccpEle.nodeName.toLowerCase() == 'input') {
+							homeroomArray['ST' + studentID]['ccp'] = ccpEle.value; 
+						} else {
+							homeroomArray['ST' + studentID]['ccp'] = ccpEle.innerText;
+						}
 					} else {
-						homeroomArray['ST' + studentID]['ccp'] = ccpEle.innerText;
+						homeroomArray['ST' + studentID]['ccp'] = false;
 					}
-				} else {
+				} catch(err) {
 					homeroomArray['ST' + studentID]['ccp'] = false;
 				}
 
