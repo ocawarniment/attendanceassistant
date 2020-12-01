@@ -512,10 +512,10 @@ function approveAttendance(studentID, studentInfo) {
 
 	var extraInfo = '';
 	if(studentInfo.cte !== false) {
-		extraInfo = "&cte=" + studentInfo.cte;
+		extraInfo = "&cte=auto";
 	}
 	if(studentInfo.ccp !== false) {
-		extraInfo = "&ccp=" + studentInfo.ccp;
+		extraInfo = "&ccp=auto";
 	}
 	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate + extraInfo, selected: true}, function(tab) { });
 }

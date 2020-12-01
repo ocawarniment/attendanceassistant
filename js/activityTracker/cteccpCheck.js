@@ -45,6 +45,7 @@ function checkCteCcpTime(){
         // set the correct course inputs
         var i=0;
         const courseDays = courseRow.querySelectorAll('input');
+        const courseDayCells = courseRow.querySelectorAll('td');
         
         // prep the results obj
         var correct = true;
@@ -52,9 +53,11 @@ function checkCteCcpTime(){
         chrome.storage.local.get(null, (result) => {
             var totalCells = document.querySelector('.time-total').querySelectorAll('th.ng-scope');
             var schoolCal = result.schoolVars.calendar;
-            courseDays.forEach(day => {
+            courseDayCells.forEach(courseDayCell => {
+                var day = courseDayCell.children[0];
+                var childType = courseDayCell.children[0].nodeName.toLowerCase();
                 // check if each catDate are in the school calendar
-                if(schoolCal.includes(catDates[i])){
+                if(schoolCal.includes(catDates[i]) && childType == 'input'){
                     // get currentTimeStr; excessTimeStr
                     var currentTimeStr = totalCells[i].querySelectorAll('span')[0].innerText;
                     var excessTimeStr = totalCells[i].querySelectorAll('span')[1].innerText;
@@ -65,7 +68,7 @@ function checkCteCcpTime(){
                     if(day.value !== '') {actualTimeStr=day.value;}
                     console.log(`Actual: ${actualTimeStr} | Expect: ${expectedTimeStr}`);
                     if(actualTimeStr !== expectedTimeStr) { console.log('mistake'); correct = false; }
-                } else {
+                } else if(childType == 'input') {
                     console.log(catDates[i] + ": " + day.value + " | expect: hh:mm");
                     // shouldnt have time check that it is hh:mm
                     if(day.value !== '') { console.log('mistake'); correct = false; }

@@ -47,17 +47,39 @@ function checkAutomation(){
 			// send message to report to go get the work
 			const url = location.href;
 			const course = url.match(/(ccp|cte)/g)[0];
-			const time = url.match(/(?<=(ccp|cte)\=)[\d\.]+/g)[0];
-			const autoString = "auto=check&course=" + course + "&time=" + time;
-			var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
-	
-			chrome.runtime.sendMessage({type: 'openPage', url: checkUrl, focused: false});
+			// set timeVal as a global variable to reference later
+			const time = url.match(/(?<=(ccp|cte)\=)[^\&]+/g)[0];
+			// get the course elementId storred
+			const elemId = result.schoolVars.truancy[course + 'Hours'].toString();
+			console.log(elemId);
+
+			// get the time
+			if(time == 'auto') {
+				chrome.runtime.sendMessage({type: 'scrapeValue', url: 'https://www.connexus.com/dataview/14661?idWebuser=' + studentID, cssSelector: `#${elemId}`}, async (response)=>{
+					console.log(response);
+					const autoString = "auto=check&course=" + course + "&time=" + response;
+					var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
+					// gray out the button
+					var cteccpButton = document.querySelector('#btnApprove');
+					cteccpButton.setAttribute('time', response.toString());
+					cteccpButton.value = `Checking ${course.toUpperCase()} Hours...`;
+					cteccpButton.setAttribute('style','border: 1px solid #565656;color:  #fff;text-shadow: 0 0 2px #010c24; background: #A4A4A4; background-image: linear-gradient(#A4A4A4, #7E7E7E);');
+					chrome.runtime.sendMessage({type: 'openPage', url: checkUrl, focused: false});
+				});
+			} else {
+				var cteccpButton = document.querySelector('#btnApprove');
+				cteccpButton.setAttribute('time', time);
+				const autoString = "auto=check&course=" + course + "&time=" + time;
+				var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
+				// gray out the button
+				var cteccpButton = document.querySelector('#btnApprove');
+				cteccpButton.value = `Checking ${course.toUpperCase()} Hours...`;
+				cteccpButton.setAttribute('style','border: 1px solid #565656;color:  #fff;text-shadow: 0 0 2px #010c24; background: #A4A4A4; background-image: linear-gradient(#A4A4A4, #7E7E7E);');
+
+				chrome.runtime.sendMessage({type: 'openPage', url: checkUrl, focused: false});
+			}
+
 		} else {
-			const autoString = "auto=getCourses";
-			var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
-			chrome.runtime.sendMessage({type: 'openPage', url: checkUrl, focused: false});
-		}
-		if(url.includes("zzzzzzzzz&auto=getCatTime")) {
 			const autoString = "auto=getCourses";
 			var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
 			chrome.runtime.sendMessage({type: 'openPage', url: checkUrl, focused: false});

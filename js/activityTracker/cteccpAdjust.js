@@ -55,15 +55,18 @@ function setCteCcpTime(){
 
     // set the correct course inputs
     var i=0;
-    const courseDays = courseRow.querySelectorAll('input');
+    //const courseDays = courseRow.querySelectorAll('input');
+    const courseDayCells = courseRow.querySelectorAll('td');
     var changes = [];
     chrome.storage.local.get(null, (result) => {
         var totalCells = document.querySelector('.time-total').querySelectorAll('th.ng-scope');
         var schoolCal = result.schoolVars.calendar;
-        courseDays.forEach(day => {
+        courseDayCells.forEach(courseDayCell => {
+            var day = courseDayCell.children[0];
+            var childType = courseDayCell.children[0].nodeName.toLowerCase();
             var before = day.value || '00:00';
             // check if each catDate are in the school calendar
-            if(schoolCal.includes(catDates[i])){
+            if(schoolCal.includes(catDates[i]) && childType == 'input'){
                 var currentTimeStr = totalCells[i].querySelectorAll('span')[0].innerText;
                 var excessTimeStr = totalCells[i].querySelectorAll('span')[1].innerText;
                 var currentDec = (currentTimeStr.match(/\d+(?= hr)/g) || 0)*60 + (currentTimeStr.match(/\d+(?= min)/g) || 0)*1;

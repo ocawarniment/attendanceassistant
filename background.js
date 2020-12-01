@@ -141,6 +141,13 @@ chrome.runtime.onMessage.addListener(
 						file: 'js/activityLog/cteccpInitiateChange.js',
 						runAt: 'document_idle'
 					});
+				} else {
+					const tabId = results.actLogID;
+					chrome.tabs.update(tabId, {selected: true});
+					chrome.tabs.executeScript(tabId, {
+						file: 'js/activityLog/cteccpConfirmTime.js',
+						runAt: 'document_idle'
+					});
 				}
 			})
 			chrome.tabs.remove(sender.tab.id, ()=>{} );
@@ -197,6 +204,25 @@ chrome.runtime.onMessage.addListener(
 				chrome.tabs.remove(sender.tab.id, ()=>{} );
 			},2000);
 		}
+
+		if (request.type == "scrapeValue") {
+			//getWeaponUsage(request.weaponType).then( (results)=>{ sendResponse({results: results}); } );
+			chrome.tabs.create({url: request.url, selected: false},(tab) => {
+				chrome.tabs.executeScript(tab.id, {
+					code: `const cssSelector="${request.cssSelector}";`,
+					runAt: 'document_end'
+				});
+				chrome.tabs.executeScript(tab.id, {
+					file: '/js/scraper/waitAndScrape.js',
+					runAt: 'document_end'
+				},(result) => {
+					console.log(result);
+					sendResponse(result[0]);
+					chrome.tabs.remove(tab.id);
+				});
+			})
+			return true; // keep connection open for async repionse
+		} 
 
 		if (request.type == "getWork") {
 			// close tab id they request

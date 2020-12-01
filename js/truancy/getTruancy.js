@@ -87,13 +87,23 @@ storage.get(null, function(result) {
 				// check CCP and CTE
 				var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
 				if(cte == 'Yes'){
-					homeroomArray['ST' + studentID]['cte'] = document.getElementById(result.schoolVars.truancy.cteHours.toString()).value;
+					var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
+					if(cteEle.nodeName.toLowerCase() == 'input') {
+						homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+					} else {
+						homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+					}
 				} else {
 					homeroomArray['ST' + studentID]['cte'] = false;
 				}
 				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
 				if(ccp !== ''){
-					homeroomArray['ST' + studentID]['ccp'] = document.getElementById(result.schoolVars.truancy.ccpHours.toString()).value;
+					var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
+					if(ccpEle.nodeName.toLowerCase() == 'input') {
+						homeroomArray['ST' + studentID]['ccp'] = ccpEle.value; 
+					} else {
+						homeroomArray['ST' + studentID]['ccp'] = ccpEle.innerText;
+					}
 				} else {
 					homeroomArray['ST' + studentID]['ccp'] = false;
 				}
