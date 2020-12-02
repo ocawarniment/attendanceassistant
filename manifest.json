@@ -1,7 +1,7 @@
 {
   "name": "Connexus: Attendance Assistant",
   "description": "Overhaul of the default Activities Log page within Connexus.",
-  "version": "9.2.1",
+  "version": "9.3.1",
   "manifest_version": 2,
   "background": {
     "persistent": false,

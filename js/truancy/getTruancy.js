@@ -85,37 +85,46 @@ storage.get(null, function(result) {
 				//homeroomArray['ST' + studentID]['test'] = 'dunno';
 
 				// check CCP and CTE
-				try{
-					var cte = document.getElementById(result.schoolVars.truancy.cteStudent.toString()).innerText;
-					if(cte == 'Yes'){
-						var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
-						if(cteEle.nodeName.toLowerCase() == 'input') {
-							homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
-						} else {
-							homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
-						}
-					} else {
-						homeroomArray['ST' + studentID]['cte'] = false;
-					}
-				} catch(err) {
+				var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
+				var cteHrs = null;
+				if(cteEle.nodeName.toLowerCase() == 'input') {
+					cteHrs = cteEle.value;
+					//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+				} else {
+					cteHrs = cteEle.innerText;
+					//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+				}
+				if(cteHrs == '0' || cteHrs == 0 || cteHrs =='') {
 					homeroomArray['ST' + studentID]['cte'] = false;
 				}
-				
-				try {
-					var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
-					if(ccp !== ''){
-						var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
-						if(ccpEle.nodeName.toLowerCase() == 'input') {
-							homeroomArray['ST' + studentID]['ccp'] = ccpEle.value; 
-						} else {
-							homeroomArray['ST' + studentID]['ccp'] = ccpEle.innerText;
-						}
-					} else {
-						homeroomArray['ST' + studentID]['ccp'] = false;
-					}
-				} catch(err) {
+
+				// check CCP and CTE
+				var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
+				var ccpHrs = null;
+				if(ccpEle.nodeName.toLowerCase() == 'input') {
+					ccpHrs = ccpEle.value;
+					//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+				} else {
+					ccpHrs = ccpEle.innerText;
+					//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+				}
+				if(ccpHrs == '0' || ccpHrs == 0 || ccpHrs =='') {
 					homeroomArray['ST' + studentID]['ccp'] = false;
 				}
+				/*
+				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
+				if(ccp !== ''){
+					var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
+					console.log(ccpEle);
+					if(ccpEle.nodeName.toLowerCase() == 'input' || ccpEle.nodeName.toLowerCase() == 'text') {
+						homeroomArray['ST' + studentID]['ccp'] = ccpEle.value; 
+					} else {
+						homeroomArray['ST' + studentID]['ccp'] = ccpEle.innerText;
+					}
+				} else {
+					homeroomArray['ST' + studentID]['ccp'] = false;
+				}
+				*/
 
 				// test state ID
 				//homeroomArray['ST' + studentID]['stateId'] =  document.getElementById(result.schoolVars.truancy.stateId.toString()).innerText;
