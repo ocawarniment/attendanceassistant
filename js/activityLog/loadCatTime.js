@@ -2,6 +2,7 @@ chrome.storage.local.get(null, (result) => {
     const catTime = result.catTime;
     var dateCells = document.querySelectorAll('[id*="activityDate"]');
     const tableRows = document.querySelectorAll('tbody > tr');
+    let missCount = 0;
     dateCells.forEach(cell => {
         var dateString = cell.innerText;
         // try to find the date
@@ -27,6 +28,14 @@ chrome.storage.local.get(null, (result) => {
             }
         } catch(err) {
             // date wasnt found
+            missCount++;
         }
     })
+    console.log(missCount);
+    if(missCount>0) {
+        let alert = document.createElement('div');
+        alert.innerText = 'Since the CAT can only display a single week at a time, some items will remain as "Course Activity" as they were not accesibile on the CAT for this approval window.';
+        alert.setAttribute('style','color: #D31717; text-align: center; padding-top: 15px;');
+        document.querySelector('#weekSnapshot').appendChild(alert)
+    }
 })

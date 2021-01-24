@@ -84,33 +84,41 @@ storage.get(null, function(result) {
 				//homeroomArray['ST' + studentID]['totalMissingHours'] = totalMissingHours;
 				//homeroomArray['ST' + studentID]['test'] = 'dunno';
 
-				// check CCP and CTE
-				var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
-				var cteHrs = null;
-				if(cteEle.nodeName.toLowerCase() == 'input') {
-					cteHrs = cteEle.value;
-					//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+				// IF AND ONLY IF OCA MODE
+				if(result.school == 'oca') {
+					// check CCP
+					var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
+					var ccpHrs = null;
+					if(ccpEle.nodeName.toLowerCase() == 'input') {
+						ccpHrs = ccpEle.value;
+						//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+					} else {
+						ccpHrs = ccpEle.innerText;
+						//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+					}
+					if(ccpHrs == '0' || ccpHrs == 0 || ccpHrs =='') {
+						homeroomArray['ST' + studentID]['ccp'] = false;
+					}
+
+					// check CCP
+					var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
+					var ccpHrs = null;
+					if(ccpEle.nodeName.toLowerCase() == 'input') {
+						ccpHrs = ccpEle.value;
+						//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
+					} else {
+						ccpHrs = ccpEle.innerText;
+						//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
+					}
+					if(ccpHrs == '0' || ccpHrs == 0 || ccpHrs =='') {
+						homeroomArray['ST' + studentID]['ccp'] = false;
+					}
 				} else {
-					cteHrs = cteEle.innerText;
-					//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
-				}
-				if(cteHrs == '0' || cteHrs == 0 || cteHrs =='') {
+					homeroomArray['ST' + studentID]['ccp'] = false;
 					homeroomArray['ST' + studentID]['cte'] = false;
 				}
 
-				// check CCP and CTE
-				var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
-				var ccpHrs = null;
-				if(ccpEle.nodeName.toLowerCase() == 'input') {
-					ccpHrs = ccpEle.value;
-					//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
-				} else {
-					ccpHrs = ccpEle.innerText;
-					//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
-				}
-				if(ccpHrs == '0' || ccpHrs == 0 || ccpHrs =='') {
-					homeroomArray['ST' + studentID]['ccp'] = false;
-				}
+				
 				/*
 				var ccp = document.getElementById(result.schoolVars.truancy.ccpStudent.toString()).innerText;
 				if(ccp !== ''){
