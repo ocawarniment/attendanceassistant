@@ -100,18 +100,18 @@ storage.get(null, function(result) {
 						homeroomArray['ST' + studentID]['ccp'] = false;
 					}
 
-					// check CCP
-					var ccpEle = document.getElementById(result.schoolVars.truancy.ccpHours.toString());
-					var ccpHrs = null;
-					if(ccpEle.nodeName.toLowerCase() == 'input') {
-						ccpHrs = ccpEle.value;
+					// check CTE
+					var cteEle = document.getElementById(result.schoolVars.truancy.cteHours.toString());
+					var cteHrs = null;
+					if(cteEle.nodeName.toLowerCase() == 'input') {
+						cteHrs = cteEle.value;
 						//homeroomArray['ST' + studentID]['cte'] = cteEle.value; 
 					} else {
-						ccpHrs = ccpEle.innerText;
+						cteHrs = cteEle.innerText;
 						//homeroomArray['ST' + studentID]['cte'] = cteEle.innerText;
 					}
-					if(ccpHrs == '0' || ccpHrs == 0 || ccpHrs =='') {
-						homeroomArray['ST' + studentID]['ccp'] = false;
+					if(cteHrs == '0' || cteHrs == 0 || cteHrs =='') {
+						homeroomArray['ST' + studentID]['cte'] = false;
 					}
 				} else {
 					homeroomArray['ST' + studentID]['ccp'] = false;
