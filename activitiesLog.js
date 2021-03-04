@@ -18,6 +18,13 @@ if (document.getElementById("startDate").getAttribute("Value") == null) {
 }
 
 if (pageState == "active") {
+	// temporarily disable the approve buttton as the page loads\
+	if(document.querySelector('#btnApprove')) {
+		const approveBtn = document.querySelector('#btnApprove');
+		approveBtn.disabled = true;
+		approveBtn.setAttribute('style','border: 1px solid #565656;color:  #fff;text-shadow: 0 0 2px #010c24; background: #A4A4A4; background-image: linear-gradient(#A4A4A4, #7E7E7E);');
+	}
+	
 	// get the student id for the current page
 	var url = window.location.href;
 	var studentID = url.match(/.idWebuser=\d*/)[0].substring(url.match(/.idWebuser=\d*/)[0].indexOf("=")+1);
@@ -27,6 +34,7 @@ if (pageState == "active") {
 	var endDate = document.getElementById("endDate").value.toString();
 	storage.set({globalStartDate: startDate, globalEndDate: endDate});
 
+	// temporarily disable approve button
 	prepTable();
 	getWork();
 	adjustApproveButton();
@@ -61,6 +69,7 @@ function checkAutomation(){
 					var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
 					// gray out the button
 					var cteccpButton = document.querySelector('#btnApprove');
+					cteccpButton.disabled = true; // prevent clicking
 					cteccpButton.setAttribute('time', response.toString());
 					cteccpButton.value = `Checking ${course.toUpperCase()} Hours...`;
 					cteccpButton.setAttribute('style','border: 1px solid #565656;color:  #fff;text-shadow: 0 0 2px #010c24; background: #A4A4A4; background-image: linear-gradient(#A4A4A4, #7E7E7E);');
@@ -68,6 +77,7 @@ function checkAutomation(){
 				});
 			} else {
 				var cteccpButton = document.querySelector('#btnApprove');
+				cteccpButton.disabled = true; // prevent clicking
 				cteccpButton.setAttribute('time', time);
 				const autoString = "auto=check&course=" + course + "&time=" + time;
 				var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
@@ -80,6 +90,12 @@ function checkAutomation(){
 			}
 
 		} else {
+			// quickly renable approve for non cte/ccp student
+			if(document.querySelector('#btnApprove')) {
+				const approveBtn = document.querySelector('#btnApprove');
+				approveBtn.disabled = false;
+				approveBtn.setAttribute('style','');
+			}
 			const autoString = "auto=getCourses";
 			var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
 			chrome.runtime.sendMessage({type: 'openPage', url: checkUrl, focused: false});
@@ -114,6 +130,7 @@ function checkCTECCP_old(){
 			var adjustUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + adjustString;
 
 			var cteccpAdjustBtn = document.createElement("input");
+			cteccpAdjustBtn.disabled = false;
 			cteccpAdjustBtn.id = "btnAdjust";
 			cteccpAdjustBtn.value = "Approve " + type.toUpperCase();
 			cteccpAdjustBtn.type = "button";
@@ -292,6 +309,7 @@ function adjustApproveButton() {
 				student['attendanceStatus'] = true;
 				storage.set({'homeroomArray': homeroomArray});
 			}
+			document.querySelector('#btnApprove').style.display = ''; // display the button again
 		} catch(err) {
 		//btnUnapprove
 			document.getElementById('btnUnapprove').onclick = function() {
@@ -300,6 +318,7 @@ function adjustApproveButton() {
 				student['attendanceStatus'] = false;
 				storage.set({'homeroomArray': homeroomArray});
 			}
+			document.querySelector('#btnUnapprove').style.display = ''; // display the button again
 		}
 	});
 }
