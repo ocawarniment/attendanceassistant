@@ -63,7 +63,7 @@ function checkAutomation(){
 
 			// get the time
 			if(time == 'auto') {
-				chrome.runtime.sendMessage({type: 'scrapeValue', url: 'https://www.connexus.com/dataview/14661?idWebuser=' + studentID, cssSelector: `#${elemId}`}, async (response)=>{
+				chrome.runtime.sendMessage({type: 'scrapeValue', url: `https://www.connexus.com/dataview/${result.schoolVars.truancy.dataViewID}?idWebuser=` + studentID, cssSelector: `#${elemId}`}, async (response)=>{
 					console.log(response);
 					const autoString = "auto=check&course=" + course + "&time=" + response;
 					var checkUrl = "https://www.connexus.com/activitytracker/default/weeksummary?idWebuser=" + url.match(/(?<=idWebuser\=)[\d]+/g)[0] + "&startDate=" + startDate + "&endDate=" + endDate + "&" + autoString;
