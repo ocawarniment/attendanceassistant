@@ -504,20 +504,28 @@ function updateHours() {
 }
 
 function approveAttendance(studentID, studentInfo) {
+	chrome.storage.local.get(null, result => {
+		closeActivityLogs();
+		
+		var startDate = document.getElementById("startDate").value;
+		var endDate = document.getElementById("endDate").value;
 	
-	closeActivityLogs();
-	
-	var startDate = document.getElementById("startDate").value;
-	var endDate = document.getElementById("endDate").value;
-
-	var extraInfo = '';
-	if(studentInfo.cte !== false) {
-		extraInfo = "&cte=auto";
-	}
-	if(studentInfo.ccp !== false) {
-		extraInfo = "&ccp=auto";
-	}
-	chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate + extraInfo, selected: true}, function(tab) { });
+		var extraInfo = '';
+		if(studentInfo.cte !== false) {
+			extraInfo = "&cte=auto";
+		}
+		if(studentInfo.ccp !== false) {
+			extraInfo = "&ccp=auto";
+		}
+		// check dates; if CTE/CCP student, OCA, and dateRange excees 7 days - ALERT
+		let dayRange = (new Date(result.approveEndDate) - new Date(result.approveStartDate))/86400000;
+		if(result.school == 'oca' && dayRange > 7 && (studentInfo.cte!==false || studentInfo.ccp !== false)) {
+			window.alert(`Student ${studentID} is enrolled in CTE or CCP.\n\nCannot approve attendance for more than 7 days at a time for CTE or CCP students due to the limitations of the CAT week view.\n\nPlease set the date range to 7 days or less.`);
+		} else {
+			// carry on as normal
+			chrome.tabs.create({ url: 'https://www.connexus.com/webuser/activity/activity.aspx?idWebuser=' + studentID + '&startDate=' + startDate + '&endDate=' + endDate + extraInfo, selected: true}, function(tab) { });
+		}
+	})
 }
 
 
